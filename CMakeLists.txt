@@ -14,5 +14,5 @@ endif()
 include(CTest)
 enable_testing()
 
-set(target ga)
-add_executable("${target}.out" main.cpp)
+add_executable("ga.out" main.cpp GA.cpp)
+add_executable("Diophantine.out" Diophantine.cpp GA_d.cpp)
