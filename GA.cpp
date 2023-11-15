@@ -1,36 +1,52 @@
 #include "GA.h"
 
+#include <algorithm>
 #include <cstdlib>
 #include <iostream>
 
-GA::GA(int width, const std::vector<Rectangle>& rectangles) {}
+GA::GA(int width, const std::vector<Rectangle>& rectangles, size_t max_iterations, size_t max_pop)
+    : width_(width), rectangles_(&rectangles), max_iterations_(max_iterations), max_pop_(max_pop) {
+    populations_.reserve(max_pop_);
+}
 
 int GA::Solve() {
-    int fitness = -1;
+    double fitness = -1;
     return fitness;
 
     // Generate initial population.
     // srand((unsigned)time(nullptr));
 
-    for (int i = 0; i < MAXPOP; i++) {  // Fill the population with numbers between
-        for (int j = 0; j < 4; j++) {   // 0 and the result.
-            population[i].alleles[j] = rand() % (result + 1);
-        }
-    }
+    // for (int i = 0; i < max_pop_; i++) {
+    //     populations_.emplace_back();
+    //     populations_.back().alleles.reserve(rectangles_->size());
 
-    if (fitness = CreateFitnesses()) {
-        return fitness;
-    }
+    //     for (size_t i = 0; i < rectangles_->size(); ++i) {
+    //         for (int j = 0; j < 100; ++j) {
+    //             Rectangle r(rectangles_->at(i));
+    //             r.pos.y = rand() % (width_ - r.width_);
+    //             if (std::any_of(rectangles_->begin(), rectangles_->end(),
+    //                             [&r](const Rectangle& other) { return r.intersect(other); })) {
+    //                 continue;
+    //             }
+    //             populations_.back().alleles.emplace_back(r.pos);
+    //             break;
+    //         }
+    //     }
+    //     if (populations_.back().alleles.size() != rectangles_->size()) {
+    //         throw std::runtime_error("can't place");
+    //     }
+    // }
+
+    fitness = CreateFitnesses();
 
     int iterations = 0;  // Keep record of the iterations.
     while (fitness != 0 ||
-           iterations < 100) {  // Repeat until solution found, or over 50 iterations.
+           iterations < max_iterations_) {  // Repeat until solution found, or over 50 iterations.
         std::cout << "iter: " << iterations << '\n';
         GenerateLikelihoods();  // Create the likelihoods.
         CreateNewPopulation();
-        if (fitness = CreateFitnesses()) {
-            return fitness;
-        }
+        fitness = CreateFitnesses();
+        break;
 
         iterations++;
     }
@@ -38,17 +54,13 @@ int GA::Solve() {
     return -1;
 }
 
-int GA::Fitness(gene& gn) {
-    int total = ca * gn.alleles[0] + cb * gn.alleles[1] + cc * gn.alleles[2] + cd * gn.alleles[3];
+double GA::Fitness(Gene& gn) { return 1.0; }
 
-    return gn.fitness = abs(total - result);
-}
-
-int GA::CreateFitnesses() {
-    float avgfit = 0;
-    int fitness = 0;
-    for (int i = 0; i < MAXPOP; i++) {
-        fitness = Fitness(population[i]);
+double GA::CreateFitnesses() {
+    double avgfit = 0;
+    double fitness = 0;
+    for (int i = 0; i < max_pop_; i++) {
+        fitness = Fitness(populations_[i]);
         avgfit += fitness;
         std::cout << "fit for " << i << " : " << fitness << '\n';
         if (fitness == 0) {
@@ -59,44 +71,44 @@ int GA::CreateFitnesses() {
     return 0;
 }
 
-float GA::MultInv() {
-    float sum = 0;
+double GA::MultInv() {
+    double sum = 0;
 
-    for (int i = 0; i < MAXPOP; i++) {
-        sum += 1 / ((float)population[i].fitness);
+    for (int i = 0; i < max_pop_; i++) {
+        sum += 1 / (populations_[i].fitness);
     }
 
     return sum;
 }
 
 void GA::GenerateLikelihoods() {
-    float multinv = MultInv();
+    double multinv = MultInv();
 
-    float last = 0;
-    for (int i = 0; i < MAXPOP; i++) {
-        population[i].likelihood = last =
-            last + ((1 / ((float)population[i].fitness) / multinv) * 100);
+    double last = 0;
+    for (int i = 0; i < max_pop_; i++) {
+        populations_[i].likelihood = last =
+            last + ((1 / (populations_[i].fitness) / multinv) * 100);
         std::cout << "% for " << i << " : " << last << '\n';
     }
 }
 
-int GA::GetIndex(float val) {
-    float last = 0;
-    for (int i = 0; i < MAXPOP; i++) {
-        if (last <= val && val <= population[i].likelihood)
+int GA::GetIndex(double val) {
+    double last = 0;
+    for (int i = 0; i < max_pop_; i++) {
+        if (last <= val && val <= populations_[i].likelihood)
             return i;
         else
-            last = population[i].likelihood;
+            last = populations_[i].likelihood;
     }
 
     return 4;
 }
 
-gene GA::Breed(int p1, int p2) {
+Gene GA::Crossover(int p1, int p2) {
     int crossover = rand() % 3 + 1;  // Create the crossover point (not first).
     int first = rand() % 100;        // Which parent comes first?
 
-    gene child = population[p1];  // Child is all first parent initially.
+    auto child = populations_[p1];  // Child is all first parent initially.
 
     int initial = 0, final = 3;  // The crossover boundaries.
     if (first < 50)
@@ -105,8 +117,8 @@ gene GA::Breed(int p1, int p2) {
         final = crossover + 1;  // Else end at crossover.
 
     for (int i = initial; i < final; i++) {  // Crossover!
-        child.alleles[i] = population[p2].alleles[i];
-        if (rand() % 101 < 5) child.alleles[i] = rand() % (result + 1);
+        child.alleles[i] = populations_[p2].alleles[i];
+        // if (rand() % 101 < 5) child.alleles[i] = rand() % (result + 1);
     }
 
     std::cout << "crossover: " << p1 << " and " << p2 << '\n';
@@ -115,18 +127,18 @@ gene GA::Breed(int p1, int p2) {
 }
 
 void GA::CreateNewPopulation() {
-    gene temppop[MAXPOP];
+    std::vector<Gene> temppop(max_pop_);
 
-    for (int i = 0; i < MAXPOP; i++) {
+    for (int i = 0; i < max_pop_; i++) {
         int parent1 = 0, parent2 = 0, iterations = 0;
-        while (parent1 == parent2 || population[parent1] == population[parent2]) {
-            parent1 = GetIndex((float)(rand() % 101));
-            parent2 = GetIndex((float)(rand() % 101));
+        while (parent1 == parent2 || populations_[parent1] == populations_[parent2]) {
+            parent1 = GetIndex((double)(rand() % 101));
+            parent2 = GetIndex((double)(rand() % 101));
             if (++iterations > 25) break;
         }
 
-        temppop[i] = Breed(parent1, parent2);  // Create a child.
+        temppop[i] = Crossover(parent1, parent2);  // Create a child.
     }
 
-    for (int i = 0; i < MAXPOP; i++) population[i] = temppop[i];
+    for (int i = 0; i < max_pop_; i++) populations_[i] = temppop[i];
 }
