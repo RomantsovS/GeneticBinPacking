@@ -6,10 +6,11 @@
 #include "Rectangle.h"
 
 struct Packet {
-    std::vector<Rectangle> rectangles;
+    std::vector<size_t> rectangles;
 };
 
 struct Schedule {
+    std::vector<Rectangle> rectangles;
     std::vector<Packet> packets;
 };
 

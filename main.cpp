@@ -34,8 +34,8 @@ class Renderer {
     void Draw(const Schedule& schedule) {
         Clear();
         for (const auto& packet : schedule.packets) {
-            for (const auto& r : packet.rectangles) {
-                AddRectangle(r);
+            for (const auto index : packet.rectangles) {
+                AddRectangle(schedule.rectangles[index]);
             }
         }
 
@@ -74,14 +74,17 @@ int main() {
             int w = 1 + rand() % (width / 2);
             Rectangle r({i, rand() % (width - w)}, h, w);
             if (std::any_of(schedule.packets.begin(), schedule.packets.end(),
-                            [&r](const Packet& packet) {
+                            [&r, &schedule](const Packet& packet) {
                                 return std::any_of(
                                     packet.rectangles.begin(), packet.rectangles.end(),
-                                    [&r](const Rectangle& other) { return r.intersect(other); });
+                                    [&r, &schedule](size_t index) {
+                                        return r.intersect(schedule.rectangles[index]);
+                                    });
                             })) {
                 continue;
             }
-            schedule.packets.back().rectangles.push_back(r);
+            schedule.rectangles.push_back(r);
+            schedule.packets.back().rectangles.push_back(schedule.rectangles.size() - 1);
             std::cout << "\t" << r.pos.y << '\n';
             if (schedule.packets.size() > (rand() % 4)) {
                 break;

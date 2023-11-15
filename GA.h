@@ -4,7 +4,7 @@
 #include <cstdlib>
 #include <vector>
 
-#include "Rectangle.h"
+#include "Schedule.h"
 
 class Gene {
    public:
