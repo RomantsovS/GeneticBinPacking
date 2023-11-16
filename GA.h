@@ -26,8 +26,8 @@ class Gene {
 
 class GA {
    public:
-    GA(int width, const Schedule& schedule, size_t max_iterations, size_t max_pop);
-    int Solve();
+    GA(size_t width, const Schedule& schedule, size_t max_iterations, size_t max_pop);
+    Schedule Solve();
 
     // Returns a given gene.
     Gene GetGene(size_t i) { return populations_[i]; }
@@ -41,11 +41,11 @@ class GA {
     int GetIndex(double val);
     Gene Crossover(int p1, int p2);
 
-    int width_;
+    size_t width_;
     const Schedule* schedule_;
 
     size_t max_iterations_;
-    size_t max_pop_;
+    size_t max_population_;
     std::vector<Gene> populations_;
 };
 

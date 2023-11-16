@@ -11,7 +11,7 @@ struct Pos {
 struct Rectangle {
     Rectangle(size_t id, Pos pos, size_t height, size_t width)
         : id(id), pos(pos), height(height), width(width) {}
-    bool intersect(const Rectangle& other) {
+    bool intersect(const Rectangle& other) const {
         return !(pos.y > other.pos.y + other.width || pos.y + width < other.pos.y ||
                  pos.x > other.pos.x + other.height || pos.x + height < other.pos.x);
     }
