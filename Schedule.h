@@ -6,7 +6,9 @@
 #include "Rectangle.h"
 
 struct Packet {
-    std::vector<size_t> rectangles;
+    Packet(size_t id) : id(id) {}
+    size_t id;
+    std::vector<Rectangle*> rectangles;
 };
 
 struct Schedule {

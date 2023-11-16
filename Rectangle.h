@@ -2,20 +2,23 @@
 #define RECTANGLE_H
 
 struct Pos {
-    int x, y;
+    size_t x, y;
 };
 
 // bool operator==(Pos lhs, Pos rhs) { return lhs.x == rhs.x && lhs.y == rhs.y; }
 // bool operator!=(Pos lhs, Pos rhs) { return !(lhs == rhs); }
 
 struct Rectangle {
-    Rectangle(Pos pos, int height, int width) : pos(pos), height_(height), width_(width) {}
+    Rectangle(size_t id, Pos pos, size_t height, size_t width)
+        : id(id), pos(pos), height(height), width(width) {}
     bool intersect(const Rectangle& other) {
-        return !(pos.y > other.pos.y + other.width_ || pos.y + width_ < other.pos.y ||
-                 pos.x > other.pos.x + other.height_ || pos.x + height_ < other.pos.x);
+        return !(pos.y > other.pos.y + other.width || pos.y + width < other.pos.y ||
+                 pos.x > other.pos.x + other.height || pos.x + height < other.pos.x);
     }
+
+    size_t id;
     Pos pos;
-    int height_, width_;
+    size_t height, width;
 };
 
 #endif

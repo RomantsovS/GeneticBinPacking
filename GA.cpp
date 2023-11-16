@@ -3,15 +3,23 @@
 #include <algorithm>
 #include <cstdlib>
 #include <iostream>
+#include <utility>
 
-GA::GA(int width, const std::vector<Rectangle>& rectangles, size_t max_iterations, size_t max_pop)
-    : width_(width), rectangles_(&rectangles), max_iterations_(max_iterations), max_pop_(max_pop) {
+GA::GA(int width, const Schedule& schedule, size_t max_iterations, size_t max_pop)
+    : width_(width), schedule_(&schedule), max_iterations_(max_iterations), max_pop_(max_pop) {
     populations_.reserve(max_pop_);
 }
 
 int GA::Solve() {
     double fitness = -1;
-    return fitness;
+
+    // std::vector<std::pair<const Rectangle*, const Packet*>> rectangles_with_packets;
+
+    // for (const auto& packet : schedule_->packets) {
+    //     for (const auto* rect : packet.rectangles) {
+    //         rectangles_with_packets.emplace_back(rect, &packet);
+    //     }
+    // }
 
     // Generate initial population.
     // srand((unsigned)time(nullptr));
