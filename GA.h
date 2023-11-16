@@ -6,20 +6,22 @@
 
 #include "Schedule.h"
 
+struct RectWithPacket {
+    bool operator==(const RectWithPacket& other) const {
+        return rect_with_pos == other.rect_with_pos && packet == other.packet;
+    }
+
+    RectWithPos rect_with_pos;
+    const Packet* packet = nullptr;
+};
+
 class Gene {
    public:
     Gene() = default;
 
-    // Test for equality.
-    bool operator==(Gene gn) {
-        for (size_t i = 0; i < alleles.size(); i++) {
-            if (gn.alleles[i] != alleles[i]) return false;
-        }
+    bool operator==(const Gene& other) { return rectangles_order == other.rectangles_order; }
 
-        return true;
-    }
-
-    std::vector<size_t> alleles;
+    std::vector<RectWithPacket> rectangles_order;
     double fitness{-1};
     double likelihood{-1};
 };
@@ -33,11 +35,16 @@ class GA {
     Gene GetGene(size_t i) { return populations_[i]; }
 
    private:
-    double Fitness(Gene& gene);  // Fitness function.
-    void GenerateLikelihoods();  // Generate likelihoods.
-    double MultInv();            // Creates the multiplicative inverse.
-    double CreateFitnesses();
-    void CreateNewPopulation();
+    Schedule makeSchedule(const std::vector<RectWithPacket>& rectangles_order);
+    std::vector<RectWithPacket> getRectanglesOrder(const Schedule& schedule);
+
+    std::vector<RectWithPacket> SwapRectanglesOrder(
+        const Schedule& schedule, const std::vector<RectWithPacket>& rectangles_order);
+
+    double Fitness(const Gene& gene);  // Fitness function.
+    void GenerateLikelihoods();        // Generate likelihoods.
+    double MultInv();                  // Creates the multiplicative inverse.
+    void CreateChilds();
     int GetIndex(double val);
     Gene Crossover(int p1, int p2);
 

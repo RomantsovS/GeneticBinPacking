@@ -13,30 +13,30 @@ class Renderer {
         : height_(height), width_(width), scale_(scale) {
         buf.resize(height_);
         for (auto& b : buf) {
-            b.resize(width_ * scale);
+            b.resize(static_cast<size_t>(static_cast<double>(width_) * scale));
         }
     }
-    void AddRectangle(const Rectangle& r) {
-        buf[r.pos.x][r.pos.y] = '+';
-        for (int i = 1; i < r.width; ++i) {
-            buf[r.pos.x][r.pos.y + i] = '-';
+    void AddRectangle(const RectWithPos& rect_with_pos) {
+        buf[rect_with_pos.pos.x][rect_with_pos.pos.y] = '+';
+        for (int i = 1; i + 1 < rect_with_pos.rect->width; ++i) {
+            buf[rect_with_pos.pos.x][rect_with_pos.pos.y + i] = '-';
+            buf[rect_with_pos.pos.x + rect_with_pos.rect->height - 1][rect_with_pos.pos.y + i] =
+                '-';
         }
-        buf[r.pos.x][r.pos.y + r.width] = '+';
-        buf[r.pos.x + r.height][r.pos.y] = '+';
-        for (int i = 1; i < r.width; ++i) {
-            buf[r.pos.x + r.height][r.pos.y + i] = '-';
-        }
-        buf[r.pos.x + r.height][r.pos.y + r.width] = '+';
-        for (int i = 1; i < r.height; ++i) {
-            buf[r.pos.x + i][r.pos.y] = '|';
-            buf[r.pos.x + i][r.pos.y + r.width] = '|';
+        buf[rect_with_pos.pos.x][rect_with_pos.pos.y + rect_with_pos.rect->width - 1] = '+';
+        buf[rect_with_pos.pos.x + rect_with_pos.rect->height - 1][rect_with_pos.pos.y] = '+';
+        buf[rect_with_pos.pos.x + rect_with_pos.rect->height - 1]
+           [rect_with_pos.pos.y + rect_with_pos.rect->width - 1] = '+';
+        for (int i = 1; i + 1 < rect_with_pos.rect->height; ++i) {
+            buf[rect_with_pos.pos.x + i][rect_with_pos.pos.y] = '|';
+            buf[rect_with_pos.pos.x + i][rect_with_pos.pos.y + rect_with_pos.rect->width - 1] = '|';
         }
     }
     void Draw(const Schedule& schedule) {
         Clear();
         for (const auto& packet : schedule.packets) {
-            for (const auto* rect : packet.rectangles) {
-                AddRectangle(*rect);
+            for (const auto rect_with_pos : packet.rectangles) {
+                AddRectangle(rect_with_pos);
             }
         }
 
