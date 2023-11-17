@@ -28,8 +28,8 @@ class Gene {
 
 class GA {
    public:
-    GA(size_t width, const Schedule& schedule, size_t max_iterations, size_t max_pop);
-    std::vector<Schedule> Solve();
+    GA(size_t width, size_t max_iterations, size_t max_pop);
+    std::vector<Schedule> Solve(const Schedule& schedule);
 
     // Returns a given gene.
     Gene GetGene(size_t i) { return populations_[i]; }
@@ -39,17 +39,17 @@ class GA {
     std::vector<RectWithPacket> getRectanglesOrder(const Schedule& schedule);
 
     std::vector<RectWithPacket> SwapRectanglesOrder(
-        const Schedule& schedule, const std::vector<RectWithPacket>& rectangles_order);
+        const std::vector<RectWithPacket>& rectangles_order);
 
-    double Fitness(const Gene& gene);  // Fitness function.
-    void GenerateLikelihoods();        // Generate likelihoods.
-    double MultInv();                  // Creates the multiplicative inverse.
+    void CalculateFitnesses(std::vector<Schedule>& res);
+    double Fitness(const Schedule& schedule);  // Fitness function.
+    void GenerateLikelihoods();                // Generate likelihoods.
+    double MultInv();                          // Creates the multiplicative inverse.
     void CreateChilds();
-    int GetIndex(double val);
+    size_t GetIndex(double val);
     Gene Crossover(int p1, int p2);
 
     size_t width_;
-    const Schedule* schedule_;
 
     size_t max_iterations_;
     size_t max_population_;

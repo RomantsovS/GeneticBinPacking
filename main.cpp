@@ -14,6 +14,7 @@ int main() {
     const size_t num_packets = 20;
     const size_t max_rectangles = 20;
     const size_t max_attemptions = 100;
+    const size_t max_packet_rectangles = 4;
 
     std::vector<Rectangle> rectangles;
     rectangles.reserve(max_rectangles);
@@ -21,7 +22,7 @@ int main() {
     for (size_t i = 0; i < num_packets; ++i) {
         schedule.packets.emplace_back(i);
         std::cout << "Packet #" << i << '\n';
-        for (int j = 0; j < max_attemptions; ++j) {
+        for (size_t j = 0; j < max_attemptions; ++j) {
             size_t rect_height = 1 + std::min(rand() % (num_packets / 2), num_packets - i - 2);
             size_t rect_width = 1 + rand() % (total_width / 2);
             Rectangle rect(rectangles.size(), rect_height, rect_width);
@@ -32,12 +33,12 @@ int main() {
             if (schedule.hasIntersection(rect_with_pos)) {
                 continue;
             }
-            rectangles.push_back(std::move(rect));
+            rectangles.push_back(rect);
             rect_with_pos.rect = &rectangles.back();
             schedule.packets.back().rectangles.push_back(rect_with_pos);
             std::cout << "\t" << schedule.packets.back().rectangles.back() << '\n';
             if (rectangles.size() == max_rectangles ||
-                schedule.packets.back().rectangles.size() > (rand() % 4)) {
+                schedule.packets.back().rectangles.size() > (rand() % max_packet_rectangles)) {
                 break;
             }
         }
@@ -51,9 +52,9 @@ int main() {
 
     const size_t max_iterations = 10;
     const size_t max_population = 25;
-    GA ga(total_width, schedule, max_iterations, max_population);
+    GA genetic_alg(total_width, max_iterations, max_population);
 
-    auto new_schedules = ga.Solve();
+    auto new_schedules = genetic_alg.Solve(schedule);
 
     for (const auto& new_schedule : new_schedules) {
         renderer.Draw(new_schedule);

@@ -32,7 +32,8 @@ inline std::ostream& operator<<(std::ostream& os, const RectWithPos& rect_with_p
 }
 
 struct Packet {
-    Packet(size_t id) : id(id) {}
+    Packet() = default;
+    Packet(size_t i) : id(i) {}
 
     bool operator==(const Packet& other) const {
         return id == other.id && rectangles == other.rectangles;

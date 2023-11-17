@@ -5,7 +5,7 @@
 // bool operator!=(Pos lhs, Pos rhs) { return !(lhs == rhs); }
 
 struct Rectangle {
-    Rectangle(size_t id, size_t height, size_t width) : id(id), height(height), width(width) {}
+    Rectangle(size_t i, size_t h, size_t w) : id(i), height(h), width(w) {}
 
     size_t id;
     size_t height, width;

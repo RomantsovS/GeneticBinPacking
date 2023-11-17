@@ -17,19 +17,25 @@ class Renderer {
         }
     }
     void AddRectangle(const RectWithPos& rect_with_pos) {
-        buf[rect_with_pos.pos.x][rect_with_pos.pos.y] = '+';
-        for (int i = 1; i + 1 < rect_with_pos.rect->width; ++i) {
-            buf[rect_with_pos.pos.x][rect_with_pos.pos.y + i] = '-';
-            buf[rect_with_pos.pos.x + rect_with_pos.rect->height - 1][rect_with_pos.pos.y + i] =
-                '-';
+        size_t down_row = rect_with_pos.pos.x + rect_with_pos.rect->height - 1;
+        size_t right_col = rect_with_pos.pos.y + rect_with_pos.rect->width - 1;
+        if (buf[0].size() <= right_col) {
+            for (auto& b : buf) {
+                b.resize(right_col + 1, ' ');
+            }
         }
-        buf[rect_with_pos.pos.x][rect_with_pos.pos.y + rect_with_pos.rect->width - 1] = '+';
-        buf[rect_with_pos.pos.x + rect_with_pos.rect->height - 1][rect_with_pos.pos.y] = '+';
-        buf[rect_with_pos.pos.x + rect_with_pos.rect->height - 1]
-           [rect_with_pos.pos.y + rect_with_pos.rect->width - 1] = '+';
-        for (int i = 1; i + 1 < rect_with_pos.rect->height; ++i) {
+        buf[rect_with_pos.pos.x][rect_with_pos.pos.y] = '+';
+        for (size_t i = 1; i + 1 < rect_with_pos.rect->width; ++i) {
+            buf[rect_with_pos.pos.x][rect_with_pos.pos.y + i] = '-';
+            buf[down_row][rect_with_pos.pos.y + i] = '-';
+        }
+
+        buf[rect_with_pos.pos.x][right_col] = '+';
+        buf[down_row][rect_with_pos.pos.y] = '+';
+        buf[down_row][right_col] = '+';
+        for (size_t i = 1; i + 1 < rect_with_pos.rect->height; ++i) {
             buf[rect_with_pos.pos.x + i][rect_with_pos.pos.y] = '|';
-            buf[rect_with_pos.pos.x + i][rect_with_pos.pos.y + rect_with_pos.rect->width - 1] = '|';
+            buf[rect_with_pos.pos.x + i][right_col] = '|';
         }
     }
     void Draw(const Schedule& schedule) {
@@ -42,7 +48,7 @@ class Renderer {
 
         for (size_t i = 0; i < buf.size(); ++i) {
             std::cout << std::setw(3) << i << '#';
-            for (int j = 0; j < buf[i].size(); ++j) {
+            for (size_t j = 0; j < buf[i].size(); ++j) {
                 std::cout << (j == width_ ? '#' : buf[i][j]);
             }
             std::cout << '#' << i << '\n';
