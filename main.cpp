@@ -50,7 +50,7 @@ int main() {
     Renderer renderer(num_packets, total_width, scale);
     renderer.Draw(schedule);
 
-    const size_t max_iterations = 10;
+    const size_t max_iterations = 10000;
     const size_t max_population = 25;
     GA genetic_alg(total_width, max_iterations, max_population);
 

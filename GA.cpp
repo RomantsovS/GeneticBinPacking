@@ -23,7 +23,7 @@ std::vector<Schedule> GA::Solve(const Schedule& schedule) {
     }
 
     // Generate initial population.
-    srand((unsigned)time(nullptr));
+    // srand((unsigned)time(nullptr));
 
     std::vector<Schedule> res;
     res.push_back(new_schedule);
