@@ -46,16 +46,18 @@ struct Schedule {
     bool operator==(const Schedule& other) const { return packets == other.packets; }
 
     bool static intersect(RectWithPos lhs, RectWithPos rhs) {
-        return !(
-            lhs.pos.y > rhs.pos.y + rhs.rect->width || lhs.pos.y + lhs.rect->width < rhs.pos.y ||
-            lhs.pos.x > rhs.pos.x + rhs.rect->height || lhs.pos.x + lhs.rect->height < rhs.pos.x);
+        return !(lhs.pos.y > rhs.pos.y + rhs.rect->width - 1 ||
+                 lhs.pos.y + lhs.rect->width - 1 < rhs.pos.y ||
+                 lhs.pos.x > rhs.pos.x + rhs.rect->height - 1 ||
+                 lhs.pos.x + lhs.rect->height - 1 < rhs.pos.x);
     }
 
     bool hasIntersection(const RectWithPos& rect_with_pos) const {
         return std::any_of(packets.begin(), packets.end(), [&rect_with_pos](const Packet& packet) {
             return std::any_of(packet.rectangles.begin(), packet.rectangles.end(),
                                [&rect_with_pos](const RectWithPos other) {
-                                   return intersect(rect_with_pos, other);
+                                   bool i = intersect(rect_with_pos, other);
+                                   return i;
                                });
         });
     }

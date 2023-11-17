@@ -12,7 +12,7 @@ GA::GA(size_t width, const Schedule& schedule, size_t max_iterations, size_t max
     populations_.reserve(max_population_);
 }
 
-Schedule GA::Solve() {
+std::vector<Schedule> GA::Solve() {
     double fitness = -1;
 
     std::vector<RectWithPacket> rectangles_order = getRectanglesOrder(*schedule_);
@@ -20,20 +20,30 @@ Schedule GA::Solve() {
     auto new_schedule = makeSchedule(rectangles_order);
 
     auto s = new_schedule.OutOfRangeSize(width_);
+    std::cout << " fit: " << s << '\n';
     if (s == 0) {
-        return new_schedule;
+        return {new_schedule};
     }
 
     // Generate initial population.
     // srand((unsigned)time(nullptr));
+
+    std::vector<Schedule> res;
+    res.push_back(new_schedule);
 
     for (int i = 0; i < max_population_; i++) {
         Gene gene;
         gene.rectangles_order = SwapRectanglesOrder(new_schedule, rectangles_order);
         gene.fitness = Fitness(gene);
 
+        std::cout << i << " fit: " << gene.fitness << '\n';
+
+        res.push_back(makeSchedule(gene.rectangles_order));
+
         populations_.push_back(std::move(gene));
     }
+
+    return res;
 
     int iterations = 0;
     while (iterations < max_iterations_) {
@@ -61,6 +71,7 @@ Schedule GA::makeSchedule(const std::vector<RectWithPacket>& rectangles_order) {
         while (rect_with_pos.pos.y > 0 && !result_schedule.hasIntersection(rect_with_pos)) {
             --rect_with_pos.pos.y;
         }
+        ++rect_with_pos.pos.y;
         result_schedule.packets[rect_order.packet->id].rectangles.push_back(rect_with_pos);
     }
 
@@ -95,23 +106,25 @@ std::vector<RectWithPacket> GA::SwapRectanglesOrder(
         packet_id = rand() % schedule.packets.size();
     }
     const auto& packet_rectangles = schedule.packets[packet_id].rectangles;
-    size_t first_rect_id = rand() % rectangles_order.size();
-    size_t second_rect_id = rand() % rectangles_order.size();
+    size_t first_rect_id = rand() % packet_rectangles.size();
+    size_t second_rect_id = rand() % packet_rectangles.size();
     while (first_rect_id == second_rect_id) {
-        second_rect_id = rand() % rectangles_order.size();
+        second_rect_id = rand() % packet_rectangles.size();
     }
     const auto first_rect_iter = std::find_if(
         result.begin(), result.end(),
-        [rect_with_pos = packet_rectangles[first_rect_id]](const RectWithPacket rect_packet) {
+        [rect_with_pos = packet_rectangles.at(first_rect_id)](const RectWithPacket rect_packet) {
             return rect_packet.rect_with_pos.rect == rect_with_pos.rect;
         });
     const auto second_rect_iter = std::find_if(
         result.begin(), result.end(),
-        [rect_with_pos = packet_rectangles[second_rect_id]](const RectWithPacket rect_packet) {
+        [rect_with_pos = packet_rectangles.at(second_rect_id)](const RectWithPacket rect_packet) {
             return rect_packet.rect_with_pos.rect == rect_with_pos.rect;
         });
 
-    std::iter_swap(result.begin() + first_rect_id, result.begin() + second_rect_id);
+    std::cout << "swap in pack " << packet_id << ": " << *first_rect_iter->rect_with_pos.rect
+              << " and " << *second_rect_iter->rect_with_pos.rect << '\n';
+    std::iter_swap(first_rect_iter, second_rect_iter);
 
     return result;
 }

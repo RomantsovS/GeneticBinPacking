@@ -53,9 +53,11 @@ int main() {
     const size_t max_population = 25;
     GA ga(total_width, schedule, max_iterations, max_population);
 
-    auto new_schedule = ga.Solve();
+    auto new_schedules = ga.Solve();
 
-    renderer.Draw(new_schedule);
+    for (const auto& new_schedule : new_schedules) {
+        renderer.Draw(new_schedule);
+    }
 
     return 0;
 }
