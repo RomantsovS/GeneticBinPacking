@@ -29,7 +29,7 @@ class Gene {
 class GA {
    public:
     GA(size_t width, size_t max_iterations, size_t max_pop);
-    std::vector<Schedule> Solve(const Schedule& schedule);
+    std::vector<Schedule> Solve(const Schedule& schedule, size_t expected_fit);
 
     // Returns a given gene.
     Gene GetGene(size_t i) { return populations_[i]; }

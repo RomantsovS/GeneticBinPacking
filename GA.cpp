@@ -11,14 +11,14 @@ GA::GA(size_t width, size_t max_iterations, size_t max_population)
     populations_.reserve(max_population_);
 }
 
-std::vector<Schedule> GA::Solve(const Schedule& schedule) {
+std::vector<Schedule> GA::Solve(const Schedule& schedule, size_t expected_fit) {
     std::vector<RectWithPacket> rectangles_order = getRectanglesOrder(schedule);
 
     auto new_schedule = makeSchedule(rectangles_order);
 
     auto s = new_schedule.OutOfRangeSize(width_);
     std::cout << " fit: " << s << '\n';
-    if (s == 0) {
+    if (s <= expected_fit) {
         return {new_schedule};
     }
 
@@ -38,12 +38,29 @@ std::vector<Schedule> GA::Solve(const Schedule& schedule) {
 
     size_t iterations = 0;
     while (iterations < max_iterations_) {
-        std::cout << "iter: " << iterations << '\n';
+        // std::cout << "iter: " << iterations << '\n';
         GenerateLikelihoods();
         CreateChilds();
         CalculateFitnesses(res);
 
+        auto res_iter =
+            std::find_if(populations_.begin(), populations_.end(),
+                         [expected_fit](const Gene& gene) { return gene.fitness <= expected_fit; });
+        if (res_iter != populations_.end()) {
+            std::cout << "iter: " << iterations << " found " << (res_iter - populations_.begin())
+                      << " with " << res_iter->fitness << '\n';
+            for (size_t i = 0; i < populations_.size(); ++i) {
+                std::cout << i << " fit: " << populations_[i].fitness << '\n';
+            }
+
+            return {makeSchedule(res_iter->rectangles_order)};
+        }
+
         ++iterations;
+    }
+
+    for (size_t i = 0; i < populations_.size(); ++i) {
+        std::cout << i << " fit: " << populations_[i].fitness << '\n';
     }
 
     return res;
@@ -125,8 +142,8 @@ std::vector<RectWithPacket> GA::SwapRectanglesOrder(
     while (first_rect_id == second_rect_id) {
         second_rect_id = rand() % result.size();
     }
-    std::cout << "swap : " << *(result.begin() + first_rect_id)->rect_with_pos.rect << " and "
-              << *(result.begin() + second_rect_id)->rect_with_pos.rect << '\n';
+    // std::cout << "swap : " << *(result.begin() + first_rect_id)->rect_with_pos.rect << " and "
+    //           << *(result.begin() + second_rect_id)->rect_with_pos.rect << '\n';
     std::iter_swap(result.begin() + first_rect_id, result.begin() + second_rect_id);
 
     return result;
@@ -146,13 +163,12 @@ void GA::CalculateFitnesses(std::vector<Schedule>& res) {
         avg_fit += gene.fitness;
         min_fit = std::min(min_fit, gene.fitness);
 
-        std::cout << i << " fit: " << gene.fitness << '\n';
+        // std::cout << i << " fit: " << gene.fitness << '\n';
 
         res.push_back(schedule);
     }
 
     avg_fit /= populations_.size();
-    std::cout << "avg fit: " << avg_fit << ", min fit: " << min_fit << '\n';
 }
 
 double GA::Fitness(const Schedule& schedule) {
@@ -194,7 +210,7 @@ void GA::CreateChilds() {
             parent2 = GetIndex(static_cast<double>(rand() % 101));
 
             if (parent1 != parent2 && populations_[parent1] == populations_[parent2]) {
-                std::cout << "equal genes for " << parent1 << " and " << parent2 << '\n';
+                // std::cout << "equal genes for " << parent1 << " and " << parent2 << '\n';
                 parent1 = parent2;
                 continue;
             }
@@ -233,7 +249,7 @@ Gene GA::Crossover(int p1, int p2) {
     size_t crossover =
         rand() % child.rectangles_order.size() + 1;  // Create the crossover point (not first).
 
-    std::cout << "crossover: " << p1 << " and " << p2 << " with " << crossover << '\n';
+    // std::cout << "crossover: " << p1 << " and " << p2 << " with " << crossover << '\n';
 
     auto rectangles_order = populations_[p2].rectangles_order;
     auto end_iter = std::remove_if(

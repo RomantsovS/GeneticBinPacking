@@ -1,3 +1,4 @@
+#include <cassert>
 #include <iostream>
 
 #include "GA.h"
@@ -5,7 +6,10 @@
 #include "Render.h"
 #include "Schedule.h"
 
-int main() {
+int main(int argc, char* argv[]) {
+    if (argc < 3) {
+        std::cerr << "incorrect parameters\n";
+    }
     // srand(time(nullptr));
 
     const size_t total_width = 60;
@@ -47,17 +51,20 @@ int main() {
         }
     }
 
+    assert(rectangles.size() == max_rectangles);
+
     Renderer renderer(num_packets, total_width, scale);
     renderer.Draw(schedule);
 
-    const size_t max_iterations = 10000;
+    const size_t max_iterations = std::stoi(argv[1]);
     const size_t max_population = 25;
     GA genetic_alg(total_width, max_iterations, max_population);
 
-    auto new_schedules = genetic_alg.Solve(schedule);
+    auto new_schedules = genetic_alg.Solve(schedule, std::stoi(argv[2]));
 
-    for (const auto& new_schedule : new_schedules) {
-        renderer.Draw(new_schedule);
+    for (size_t i = 0; i < new_schedules.size(); ++i) {
+        std::cout << "schedule: " << i << '\n';
+        renderer.Draw(new_schedules[i]);
     }
 
     return 0;
