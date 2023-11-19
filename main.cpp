@@ -52,7 +52,7 @@ int main(int argc, char* argv[]) {
                 std::min(1 + std::min(rand() % (num_packets / 4), num_packets - packet_id - 1),
                          max_rectalgle_height);
             size_t rect_width =
-                1 + rand() % (std::min(total_width / 2, total_width - packet_width));
+                1 + rand() % (std::min(total_width / 3, total_width - packet_width));
             Rectangle rect(rectangles.size(), rect_height, rect_width);
             RectWithPos rect_with_pos{
                 &rect, Pos{packet_id,
