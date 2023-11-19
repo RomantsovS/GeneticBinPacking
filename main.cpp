@@ -7,20 +7,22 @@
 #include "Schedule.h"
 
 int main(int argc, char* argv[]) {
-    const size_t num_parameters = 7;
+    const size_t num_parameters = 8;
     if (argc != num_parameters) {
         std::cerr << "incorrect parameters\n";
         return 1;
     }
-    // srand(time(nullptr));
+
+    unsigned rand_seed = std::stoi(argv[1]) ? time(nullptr) : 0;
+    srand(rand_seed);
 
     const size_t total_width = 60;
     const double scale = 1.5;
-    const size_t num_packets = std::stoi(argv[1]);
-    const size_t max_rectangles = std::stoi(argv[2]);
-    const size_t max_rectalgle_height = std::stoi(argv[3]);
+    const size_t num_packets = std::stoi(argv[2]);
+    const size_t max_rectangles = std::stoi(argv[3]);
+    const size_t max_rectalgle_height = std::stoi(argv[4]);
     const size_t max_attemptions = 10000;
-    const size_t max_packet_rectangles = std::stoi(argv[4]);
+    const size_t max_packet_rectangles = std::stoi(argv[5]);
 
     std::vector<Rectangle> rectangles;
     rectangles.reserve(max_rectangles);
@@ -67,11 +69,11 @@ int main(int argc, char* argv[]) {
 
     std::flush(std::cout);
 
-    const size_t max_iterations = std::stoi(argv[5]);
+    const size_t max_iterations = std::stoi(argv[6]);
     const size_t max_population = 25;
     GA genetic_alg(total_width, max_iterations, max_population);
 
-    auto new_schedules = genetic_alg.Solve(schedule, std::stoi(argv[6]));
+    auto new_schedules = genetic_alg.Solve(schedule, std::stoi(argv[7]), rand_seed);
 
     for (size_t i = 0; i < new_schedules.size(); ++i) {
         std::cout << "schedule: " << i << '\n';

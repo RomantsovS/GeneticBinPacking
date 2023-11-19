@@ -56,7 +56,7 @@ struct Schedule {
     bool hasIntersection(const RectWithPos& rect_with_pos) const {
         return std::any_of(packets.begin(), packets.end(), [&rect_with_pos](const Packet& packet) {
             return std::any_of(packet.rectangles.begin(), packet.rectangles.end(),
-                               [&rect_with_pos](const RectWithPos other) {
+                               [&rect_with_pos](const RectWithPos& other) {
                                    bool i = intersect(rect_with_pos, other);
                                    return i;
                                });
