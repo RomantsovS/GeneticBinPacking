@@ -1,5 +1,6 @@
 #include <cassert>
 #include <iostream>
+#include <limits>
 
 #include "GA.h"
 #include "Rectangle.h"
@@ -28,36 +29,46 @@ int main(int argc, char* argv[]) {
     rectangles.reserve(max_rectangles);
 
     Schedule schedule;
-
     for (size_t i = 0; i < num_packets; ++i) {
         schedule.packets.emplace_back(i);
-        std::cout << "Packet #" << i << '\n';
+    }
+
+    for (size_t i = 0; i < max_rectangles; ++i) {
+        size_t packet_id = std::numeric_limits<size_t>::max();
+        int iteration = 0;
+        while (packet_id == std::numeric_limits<size_t>::max() ||
+               schedule.packets[packet_id].rectangles.size() == max_packet_rectangles) {
+            packet_id = rand() % num_packets;
+            if (iteration == max_attemptions) {
+                std::cerr << "can't find packet for allocation\n";
+                return -1;
+            }
+        }
         for (size_t j = 0; j < max_attemptions; ++j) {
             size_t rect_height =
-                std::min(1 + std::min(rand() % (num_packets / 4), num_packets - i - 1),
+                std::min(1 + std::min(rand() % (num_packets / 4), num_packets - packet_id - 1),
                          max_rectalgle_height);
             size_t rect_width = 1 + rand() % (total_width / 2);
             Rectangle rect(rectangles.size(), rect_height, rect_width);
             RectWithPos rect_with_pos{
-                &rect,
-                Pos{i, rand() % (static_cast<size_t>(static_cast<double>(total_width) * scale) -
-                                 rect_width)}};
+                &rect, Pos{packet_id,
+                           rand() % (static_cast<size_t>(static_cast<double>(total_width) * scale) -
+                                     rect_width)}};
             if (schedule.hasIntersection(rect_with_pos)) {
                 continue;
             }
             rectangles.push_back(rect);
             rect_with_pos.rect = &rectangles.back();
-            schedule.packets.back().rectangles.push_back(rect_with_pos);
-            std::cout << "\t" << schedule.packets.back().rectangles.back() << '\n';
-            if (rectangles.size() == max_rectangles ||
-                schedule.packets.back().rectangles.size() > (rand() % max_packet_rectangles)) {
-                break;
-            }
+            schedule.packets[packet_id].rectangles.push_back(rect_with_pos);
+
+            break;
         }
         if (rectangles.size() == max_rectangles) {
             break;
         }
     }
+
+    schedule.print();
 
     if (rectangles.size() != max_rectangles) {
         std::cerr << "allocated only " << rectangles.size() << "/" << max_rectangles << '\n';

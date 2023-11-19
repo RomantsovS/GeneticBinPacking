@@ -66,16 +66,25 @@ struct Schedule {
     size_t OutOfRangeSize(size_t width) const {
         return std::accumulate(
             packets.begin(), packets.end(), 0u, [width](size_t sum, const Packet& packet) {
-                return sum + std::accumulate(
-                                 packet.rectangles.begin(), packet.rectangles.end(), 0u,
-                                 [width](size_t sum2, const RectWithPos& rect_with_pos) {
-                                     size_t rect_end =
-                                         rect_with_pos.pos.y + rect_with_pos.rect->width;
-                                     return sum2 + rect_end > width
-                                                ? (rect_end - width) * rect_with_pos.rect->height
-                                                : 0u;
-                                 });
+                return sum +
+                       std::accumulate(
+                           packet.rectangles.begin(), packet.rectangles.end(), 0u,
+                           [width](size_t sum2, const RectWithPos& rect_with_pos) {
+                               size_t rect_end = rect_with_pos.pos.y + rect_with_pos.rect->width;
+                               return sum2 + (rect_end > width
+                                                  ? (rect_end - width) * rect_with_pos.rect->height
+                                                  : 0u);
+                           });
             });
+    }
+
+    void print() {
+        for (const auto& packet : packets) {
+            std::cout << "Packet #" << packet.id << '\n';
+            for (const auto& rect_with_pos : packet.rectangles) {
+                std::cout << "\t" << rect_with_pos << '\n';
+            }
+        }
     }
 
     std::vector<Packet> packets;
