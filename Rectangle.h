@@ -12,7 +12,7 @@ struct Rectangle {
 };
 
 inline std::ostream& operator<<(std::ostream& os, Rectangle rect) {
-    return os << "rect: " << rect.id << ',' << rect.height << ',' << rect.width;
+    return os << "rect " << rect.id << ": h:" << rect.height << " w:" << rect.width;
 }
 
 #endif

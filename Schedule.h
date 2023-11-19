@@ -28,7 +28,7 @@ struct RectWithPos {
 };
 
 inline std::ostream& operator<<(std::ostream& os, const RectWithPos& rect_with_pos) {
-    return os << '[' << *rect_with_pos.rect << ',' << rect_with_pos.pos << ']';
+    return os << '[' << *rect_with_pos.rect << ", " << rect_with_pos.pos << ']';
 }
 
 struct Packet {
