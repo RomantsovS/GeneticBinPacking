@@ -39,6 +39,13 @@ struct Packet {
         return id == other.id && rectangles == other.rectangles;
     }
 
+    size_t width() const {
+        return std::accumulate(rectangles.begin(), rectangles.end(), 0u,
+                               [](size_t sum, const RectWithPos& rect_with_pos) {
+                                   return sum + rect_with_pos.rect->width;
+                               });
+    }
+
     size_t id = -1;
     std::vector<RectWithPos> rectangles;
 };
@@ -80,7 +87,7 @@ struct Schedule {
 
     void print() {
         for (const auto& packet : packets) {
-            std::cout << "Packet #" << packet.id << '\n';
+            std::cout << "Packet #" << packet.id << " width: " << packet.width() << '\n';
             for (const auto& rect_with_pos : packet.rectangles) {
                 std::cout << "\t" << rect_with_pos << '\n';
             }

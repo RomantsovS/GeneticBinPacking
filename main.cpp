@@ -44,11 +44,15 @@ int main(int argc, char* argv[]) {
                 return -1;
             }
         }
+
+        size_t packet_width = schedule.packets[packet_id].width();
+
         for (size_t j = 0; j < max_attemptions; ++j) {
             size_t rect_height =
                 std::min(1 + std::min(rand() % (num_packets / 4), num_packets - packet_id - 1),
                          max_rectalgle_height);
-            size_t rect_width = 1 + rand() % (total_width / 2);
+            size_t rect_width =
+                1 + rand() % (std::min(total_width / 2, total_width - packet_width));
             Rectangle rect(rectangles.size(), rect_height, rect_width);
             RectWithPos rect_with_pos{
                 &rect, Pos{packet_id,
