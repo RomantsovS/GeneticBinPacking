@@ -16,7 +16,6 @@ int main(int argc, char* argv[]) {
 
     const size_t total_width = 60;
     const double scale = 1.5;
-    Schedule schedule;
     const size_t num_packets = std::stoi(argv[1]);
     const size_t max_rectangles = std::stoi(argv[2]);
     const size_t max_rectalgle_height = std::stoi(argv[3]);
@@ -25,6 +24,8 @@ int main(int argc, char* argv[]) {
 
     std::vector<Rectangle> rectangles;
     rectangles.reserve(max_rectangles);
+
+    Schedule schedule;
 
     for (size_t i = 0; i < num_packets; ++i) {
         schedule.packets.emplace_back(i);
@@ -61,7 +62,7 @@ int main(int argc, char* argv[]) {
         return 1;
     }
 
-    Renderer renderer(num_packets, total_width, scale);
+    Renderer renderer(num_packets, total_width);
     renderer.Draw(schedule);
 
     std::flush(std::cout);

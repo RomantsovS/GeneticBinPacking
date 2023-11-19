@@ -12,14 +12,22 @@ GA::GA(size_t width, size_t max_iterations, size_t max_population)
 }
 
 std::vector<Schedule> GA::Solve(const Schedule& schedule, size_t expected_fit) {
+    auto fit = Fitness(schedule);
+    std::cout << "original schedule fit: " << fit << '\n';
+    if (fit <= expected_fit) {
+        std::cout << "original schedule has expected fit\n";
+        return {schedule};
+    }
+
     std::vector<RectWithPacket> rectangles_order = getRectanglesOrder(schedule);
 
-    auto orig_schedule = makeSchedule(rectangles_order);
+    auto ordered_schedule = makeSchedule(rectangles_order);
 
-    auto s = orig_schedule.OutOfRangeSize(width_);
-    std::cout << " fit: " << s << '\n';
-    if (s <= expected_fit) {
-        return {orig_schedule};
+    fit = Fitness(ordered_schedule);
+    std::cout << "ordered schedule fit: " << fit << '\n';
+    if (fit <= expected_fit) {
+        std::cout << "ordered schedule has expected fit\n";
+        return {ordered_schedule};
     }
 
     // Generate initial population.
@@ -64,7 +72,7 @@ std::vector<Schedule> GA::Solve(const Schedule& schedule, size_t expected_fit) {
         std::cout << "interrupted after " << iterations << " iterations\n";
     }
 
-    res.insert(res.begin(), orig_schedule);
+    res.insert(res.begin(), ordered_schedule);
 
     return res;
 }

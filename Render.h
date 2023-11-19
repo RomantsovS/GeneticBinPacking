@@ -9,11 +9,10 @@
 
 class Renderer {
    public:
-    Renderer(size_t height, size_t width, double scale)
-        : height_(height), width_(width), scale_(scale) {
+    Renderer(size_t height, size_t width) : height_(height), width_(width) {
         buf.resize(height_);
         for (auto& b : buf) {
-            b.resize(static_cast<size_t>(static_cast<double>(width_) * scale));
+            b.resize(static_cast<size_t>(static_cast<double>(width_)));
         }
     }
     void AddRectangle(const RectWithPos& rect_with_pos) {
@@ -63,7 +62,6 @@ class Renderer {
     }
     size_t height_;
     size_t width_;
-    double scale_;
     std::vector<std::vector<char>> buf;
 };
 
