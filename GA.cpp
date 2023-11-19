@@ -14,19 +14,18 @@ GA::GA(size_t width, size_t max_iterations, size_t max_population)
 std::vector<Schedule> GA::Solve(const Schedule& schedule, size_t expected_fit) {
     std::vector<RectWithPacket> rectangles_order = getRectanglesOrder(schedule);
 
-    auto new_schedule = makeSchedule(rectangles_order);
+    auto orig_schedule = makeSchedule(rectangles_order);
 
-    auto s = new_schedule.OutOfRangeSize(width_);
+    auto s = orig_schedule.OutOfRangeSize(width_);
     std::cout << " fit: " << s << '\n';
     if (s <= expected_fit) {
-        return {new_schedule};
+        return {orig_schedule};
     }
 
     // Generate initial population.
     // srand((unsigned)time(nullptr));
 
     std::vector<Schedule> res;
-    res.push_back(new_schedule);
 
     for (size_t i = 0; i < max_population_; i++) {
         Gene gene;
@@ -34,34 +33,38 @@ std::vector<Schedule> GA::Solve(const Schedule& schedule, size_t expected_fit) {
         populations_.push_back(std::move(gene));
     }
 
-    CalculateFitnesses(res);
+    CalculateFitnesses();
 
     size_t iterations = 0;
     while (iterations < max_iterations_) {
-        // std::cout << "iter: " << iterations << '\n';
         GenerateLikelihoods();
         CreateChilds();
-        CalculateFitnesses(res);
+        CalculateFitnesses();
 
         auto res_iter =
             std::find_if(populations_.begin(), populations_.end(),
                          [expected_fit](const Gene& gene) { return gene.fitness <= expected_fit; });
         if (res_iter != populations_.end()) {
-            std::cout << "iter: " << iterations << " found " << (res_iter - populations_.begin())
-                      << " with " << res_iter->fitness << '\n';
-            for (size_t i = 0; i < populations_.size(); ++i) {
-                std::cout << i << " fit: " << populations_[i].fitness << '\n';
-            }
-
-            return {makeSchedule(res_iter->rectangles_order)};
+            std::cout << "iter: " << iterations << " found with " << res_iter->fitness << '\n';
+            break;
         }
 
         ++iterations;
     }
 
+    std::sort(populations_.begin(), populations_.end(),
+              [](const Gene& lhs, const Gene& rhs) { return lhs.fitness < rhs.fitness; });
+
     for (size_t i = 0; i < populations_.size(); ++i) {
-        std::cout << i << " fit: " << populations_[i].fitness << '\n';
+        res.push_back(makeSchedule(populations_[i].rectangles_order));
+        std::cout << (i + 1) << " fit: " << populations_[i].fitness << '\n';
     }
+
+    if (iterations == max_iterations_) {
+        std::cout << "interrupted after " << iterations << " iterations\n";
+    }
+
+    res.insert(res.begin(), orig_schedule);
 
     return res;
 }
@@ -149,26 +152,19 @@ std::vector<RectWithPacket> GA::SwapRectanglesOrder(
     return result;
 }
 
-void GA::CalculateFitnesses(std::vector<Schedule>& res) {
+void GA::CalculateFitnesses() {
     double avg_fit = 0;
     double min_fit = std::numeric_limits<double>::max();
 
-    res.clear();
-
-    for (size_t i = 0; i < populations_.size(); ++i) {
-        auto& gene = populations_[i];
+    for (auto& gene : populations_) {
         auto schedule = makeSchedule(gene.rectangles_order);
         gene.fitness = Fitness(schedule);
 
         avg_fit += gene.fitness;
         min_fit = std::min(min_fit, gene.fitness);
-
-        // std::cout << i << " fit: " << gene.fitness << '\n';
-
-        res.push_back(schedule);
     }
 
-    avg_fit /= populations_.size();
+    avg_fit /= static_cast<double>(populations_.size());
 }
 
 double GA::Fitness(const Schedule& schedule) {

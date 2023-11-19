@@ -19,4 +19,3 @@ enable_testing()
 
 add_executable(ga main.cpp GA.cpp)
 target_compile_options(ga PRIVATE ${MY_COMLILE_OPTIONS})
-add_executable(Diophantine Diophantine.cpp GA_d.cpp)

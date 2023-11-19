@@ -31,9 +31,6 @@ class GA {
     GA(size_t width, size_t max_iterations, size_t max_pop);
     std::vector<Schedule> Solve(const Schedule& schedule, size_t expected_fit);
 
-    // Returns a given gene.
-    Gene GetGene(size_t i) { return populations_[i]; }
-
    private:
     Schedule makeSchedule(const std::vector<RectWithPacket>& rectangles_order);
     std::vector<RectWithPacket> getRectanglesOrder(const Schedule& schedule);
@@ -41,7 +38,7 @@ class GA {
     std::vector<RectWithPacket> SwapRectanglesOrder(
         const std::vector<RectWithPacket>& rectangles_order);
 
-    void CalculateFitnesses(std::vector<Schedule>& res);
+    void CalculateFitnesses();
     double Fitness(const Schedule& schedule);  // Fitness function.
     void GenerateLikelihoods();                // Generate likelihoods.
     double MultInv();                          // Creates the multiplicative inverse.

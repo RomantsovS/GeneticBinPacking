@@ -39,7 +39,7 @@ struct Packet {
         return id == other.id && rectangles == other.rectangles;
     }
 
-    size_t id;
+    size_t id = -1;
     std::vector<RectWithPos> rectangles;
 };
 

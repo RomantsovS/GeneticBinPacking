@@ -49,7 +49,7 @@ class Renderer {
         for (size_t i = 0; i < buf.size(); ++i) {
             std::cout << std::setw(3) << i << '#';
             for (size_t j = 0; j < buf[i].size(); ++j) {
-                std::cout << (j == width_ ? '#' : buf[i][j]);
+                std::cout << (j == width_ && buf[i][j] == ' ' ? '#' : buf[i][j]);
             }
             std::cout << '#' << i << '\n';
         }
