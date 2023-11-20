@@ -50,8 +50,16 @@ struct Packet {
     std::vector<RectWithPos> rectangles;
 };
 
-struct Schedule {
+class Schedule {
+   public:
     bool operator==(const Schedule& other) const { return packets == other.packets; }
+
+    void addPacket(const Packet& packet) { packets.push_back(packet); }
+    void addRectangle(size_t packet_id, const RectWithPos& rect_with_pos) {
+        packets.at(packet_id).rectangles.push_back(rect_with_pos);
+    }
+
+    const std::vector<Packet>& getPackets() const { return packets; }
 
     bool static intersect(RectWithPos lhs, RectWithPos rhs) {
         return !(lhs.pos.y > rhs.pos.y + rhs.rect->width - 1 ||
@@ -94,7 +102,14 @@ struct Schedule {
         }
     }
 
+   private:
     std::vector<Packet> packets;
+
+    struct PairHash {
+        size_t operator()(const std::pair<size_t, size_t>& pair) const {
+            return pair.first * 32 + pair.second;
+        }
+    };
 };
 
 #endif

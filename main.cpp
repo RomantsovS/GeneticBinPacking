@@ -30,14 +30,14 @@ int main(int argc, char* argv[]) {
 
     Schedule schedule;
     for (size_t i = 0; i < num_packets; ++i) {
-        schedule.packets.emplace_back(i);
+        schedule.addPacket({i});
     }
 
     for (size_t i = 0; i < max_rectangles; ++i) {
         size_t packet_id = std::numeric_limits<size_t>::max();
         int iteration = 0;
         while (packet_id == std::numeric_limits<size_t>::max() ||
-               schedule.packets[packet_id].rectangles.size() == max_packet_rectangles) {
+               schedule.getPackets()[packet_id].rectangles.size() == max_packet_rectangles) {
             packet_id = rand() % num_packets;
             if (iteration == max_attemptions) {
                 std::cerr << "can't find packet for allocation\n";
@@ -45,7 +45,7 @@ int main(int argc, char* argv[]) {
             }
         }
 
-        size_t packet_width = schedule.packets[packet_id].width();
+        size_t packet_width = schedule.getPackets()[packet_id].width();
 
         for (size_t j = 0; j < max_attemptions; ++j) {
             size_t rect_height =
@@ -63,7 +63,7 @@ int main(int argc, char* argv[]) {
             }
             rectangles.push_back(rect);
             rect_with_pos.rect = &rectangles.back();
-            schedule.packets[packet_id].rectangles.push_back(rect_with_pos);
+            schedule.addRectangle(packet_id, rect_with_pos);
 
             break;
         }

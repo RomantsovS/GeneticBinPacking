@@ -85,13 +85,12 @@ Schedule GA::makeSchedule(const std::vector<RectWithPacket>& rectangles_order) {
             --rect_with_pos.pos.y;
         }
         ++rect_with_pos.pos.y;
-        if (result_schedule.packets.size() <= rect_order.packet->id) {
-            result_schedule.packets.reserve(rect_order.packet->id);
-            while (result_schedule.packets.size() <= rect_order.packet->id) {
-                result_schedule.packets.emplace_back(result_schedule.packets.size());
+        if (result_schedule.getPackets().size() <= rect_order.packet->id) {
+            while (result_schedule.getPackets().size() <= rect_order.packet->id) {
+                result_schedule.addPacket({result_schedule.getPackets().size()});
             }
         }
-        result_schedule.packets[rect_order.packet->id].rectangles.push_back(rect_with_pos);
+        result_schedule.addRectangle(rect_order.packet->id, rect_with_pos);
     }
 
     return result_schedule;
@@ -100,7 +99,7 @@ Schedule GA::makeSchedule(const std::vector<RectWithPacket>& rectangles_order) {
 std::vector<RectWithPacket> GA::getRectanglesOrder(const Schedule& schedule) {
     std::vector<RectWithPacket> rectangles_order;
 
-    for (const auto& packet : schedule.packets) {
+    for (const auto& packet : schedule.getPackets()) {
         for (const auto rect_with_pos : packet.rectangles) {
             rectangles_order.push_back(RectWithPacket{rect_with_pos, &packet});
         }

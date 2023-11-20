@@ -39,7 +39,7 @@ class Renderer {
     }
     void Draw(const Schedule& schedule) {
         Clear();
-        for (const auto& packet : schedule.packets) {
+        for (const auto& packet : schedule.getPackets()) {
             for (const auto rect_with_pos : packet.rectangles) {
                 AddRectangle(rect_with_pos);
             }
