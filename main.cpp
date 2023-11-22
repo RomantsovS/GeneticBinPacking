@@ -36,7 +36,7 @@ int main(int argc, char* argv[]) {
         while (packet_id == std::numeric_limits<size_t>::max() ||
                schedule.getPackets()[packet_id].rectangles.size() == max_packet_rectangles) {
             packet_id = rand() % num_packets;
-            if (iteration == max_attemptions) {
+            if (++iteration == max_attemptions) {
                 std::cerr << "can't find packet for allocation\n";
                 return -1;
             }
