@@ -48,15 +48,26 @@ struct Packet {
 
     size_t id = -1;
     std::vector<RectWithPos> rectangles;
+    size_t max_width = 0;
 };
 
 class Schedule {
    public:
+    Schedule(size_t num_packets) {
+        packets.reserve(num_packets);
+        for (size_t i = 0; i < num_packets; ++i) {
+            packets.emplace_back(i);
+        }
+    }
     bool operator==(const Schedule& other) const { return packets == other.packets; }
 
     void addPacket(const Packet& packet) { packets.push_back(packet); }
     void addRectangle(size_t packet_id, const RectWithPos& rect_with_pos) {
-        packets.at(packet_id).rectangles.push_back(rect_with_pos);
+        auto& packet = packets.at(packet_id);
+        packet.rectangles.push_back(rect_with_pos);
+        for (size_t i = 0; i < rect_with_pos.rect->height; ++i) {
+            packets.at(packet_id + i).max_width = rect_with_pos.pos.y + rect_with_pos.rect->width;
+        }
     }
 
     const std::vector<Packet>& getPackets() const { return packets; }

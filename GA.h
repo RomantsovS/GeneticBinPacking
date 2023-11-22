@@ -33,21 +33,22 @@ class GA {
                                 unsigned random_seed);
 
    private:
-    Schedule makeSchedule(const std::vector<RectWithPacket>& rectangles_order);
-    std::vector<RectWithPacket> getRectanglesOrder(const Schedule& schedule);
+    Schedule makeSchedule(const std::vector<RectWithPacket>& rectangles_order) const;
+    std::vector<RectWithPacket> getRectanglesOrder(const Schedule& schedule) const;
 
     std::vector<RectWithPacket> SwapRectanglesOrder(
-        const std::vector<RectWithPacket>& rectangles_order);
+        const std::vector<RectWithPacket>& rectangles_order) const;
 
     double CalculateFitnesses();
-    double Fitness(const Schedule& schedule);  // Fitness function.
-    void GenerateLikelihoods();                // Generate likelihoods.
-    double MultInv();                          // Creates the multiplicative inverse.
+    double Fitness(const Schedule& schedule) const;  // Fitness function.
+    void GenerateLikelihoods();                      // Generate likelihoods.
+    double MultInv() const;                          // Creates the multiplicative inverse.
     void CreateChilds();
-    size_t GetIndex(double val);
-    Gene Crossover(size_t parent_id_1, size_t parent_id_2);
+    size_t GetIndex(double val) const;
+    Gene Crossover(size_t parent_id_1, size_t parent_id_2) const;
 
     size_t width_;
+    size_t num_packets_;
 
     size_t max_iterations_;
     size_t max_population_;

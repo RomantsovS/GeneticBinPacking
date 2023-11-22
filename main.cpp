@@ -28,10 +28,7 @@ int main(int argc, char* argv[]) {
     std::vector<Rectangle> rectangles;
     rectangles.reserve(max_rectangles);
 
-    Schedule schedule;
-    for (size_t i = 0; i < num_packets; ++i) {
-        schedule.addPacket({i});
-    }
+    Schedule schedule(num_packets);
 
     for (size_t i = 0; i < max_rectangles; ++i) {
         size_t packet_id = std::numeric_limits<size_t>::max();
