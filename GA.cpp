@@ -81,10 +81,11 @@ Schedule GA::makeSchedule(const std::vector<RectWithPacket>& rectangles_order) {
     for (const auto rect_order : rectangles_order) {
         auto rect_with_pos = rect_order.rect_with_pos;
         rect_with_pos.pos.y = width_ * width_scale;
-        while (rect_with_pos.pos.y > 0 && !result_schedule.hasIntersection(rect_with_pos)) {
+        while (rect_with_pos.pos.y > 0 &&
+                   !result_schedule.hasIntersection(
+                       {rect_with_pos.rect, {rect_with_pos.pos.x, rect_with_pos.pos.y - 1}})) {
             --rect_with_pos.pos.y;
         }
-        ++rect_with_pos.pos.y;
         if (result_schedule.getPackets().size() <= rect_order.packet->id) {
             while (result_schedule.getPackets().size() <= rect_order.packet->id) {
                 result_schedule.addPacket({result_schedule.getPackets().size()});
