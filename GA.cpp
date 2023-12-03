@@ -312,7 +312,7 @@ void GA::Mutation() {
 
 void GA::CreateNewPopulation() {
     populations_.insert(populations_.end(), childs_.begin(), childs_.end());
-    std::nth_element(populations_.begin(), populations_.begin() + max_population_,
-                     populations_.end());
+    std::sort(populations_.begin(), populations_.end());
+    populations_.erase(std::unique(populations_.begin(), populations_.end()), populations_.end());
     populations_.erase(populations_.begin() + max_population_, populations_.end());
 }
