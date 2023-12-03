@@ -105,12 +105,17 @@ class Schedule {
     }
 
     void print() {
+        size_t total_area = 0;
+
         for (const auto& packet : packets) {
             std::cout << "Packet #" << packet.id << " width: " << packet.width() << '\n';
             for (const auto& rect_with_pos : packet.rectangles) {
+                total_area += rect_with_pos.rect->height * rect_with_pos.rect->width;
                 std::cout << "\t" << rect_with_pos << '\n';
             }
         }
+
+        std::cout << "total area:" << total_area << '\n';
     }
 
    private:

@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <cassert>
 #include <cstdlib>
+#include <iomanip>
 #include <iostream>
 #include <limits>
 
@@ -46,7 +47,7 @@ std::vector<Schedule> GA::Solve(const Schedule& schedule, size_t expected_fit,
 
     CalculateFitnesses();
 
-    size_t iterations = 0;
+    size_t iterations = 1;
     while (iterations < max_iterations_) {
         GenerateLikelihoods();
         CreateChilds();
@@ -54,7 +55,7 @@ std::vector<Schedule> GA::Solve(const Schedule& schedule, size_t expected_fit,
         CreateNewPopulation();
         auto min_fit = CalculateFitnesses();
         if (min_fit < static_cast<double>(expected_fit)) {
-            std::cout << "iter: " << iterations << " found with " << min_fit << '\n';
+            std::cout << "iter: " << iterations << " found with fit: " << min_fit << '\n';
             break;
         }
 
@@ -64,18 +65,40 @@ std::vector<Schedule> GA::Solve(const Schedule& schedule, size_t expected_fit,
     std::sort(populations_.begin(), populations_.end(),
               [](const Gene& lhs, const Gene& rhs) { return lhs.fitness < rhs.fitness; });
 
+    if (iterations == max_iterations_) {
+        std::cout << "interrupted after " << iterations << " iterations\n";
+    }
+
     for (size_t i = 0; i < populations_.size(); ++i) {
         res.push_back(makeSchedule(populations_[i].rectangles_order));
         std::cout << (i + 1) << " fit: " << populations_[i].fitness << '\n';
     }
 
-    if (iterations == max_iterations_) {
-        std::cout << "interrupted after " << iterations << " iterations\n";
-    }
-
     res.insert(res.begin(), ordered_schedule);
 
     return res;
+}
+
+void GA::PrintStatistic() {
+    if (iterations_statistic.empty()) {
+        std::cout << "satistic is emty\n";
+        return;
+    }
+
+    // for (size_t i = 0; i < iterations_statistic.size(); ++i) {
+    //     std::cout << "iter " << std::setw(5) << i << " min:" << iterations_statistic[i].min
+    //               << " avg:" << iterations_statistic[i].avg << "\n";
+    // }
+
+    double scale = iterations_statistic[0].avg > 100.0 ? iterations_statistic[0].avg / 100 : 1.0;
+
+    for (size_t i = 0; i < iterations_statistic.size(); ++i) {
+        std::cout << std::setw(5) << i << std::string(iterations_statistic[i].min / scale, ' ')
+                  << std::string(
+                         (iterations_statistic[i].avg - iterations_statistic[i].min) / scale + 1,
+                         '*')
+                  << '\n';
+    }
 }
 
 Schedule GA::makeSchedule(const std::vector<RectWithPacket>& rectangles_order) const {
@@ -171,6 +194,8 @@ double GA::CalculateFitnesses() {
 
     assert(!populations_.empty());
     avg_fit /= static_cast<double>(populations_.size());
+
+    iterations_statistic.push_back({min_fit, avg_fit});
 
     return min_fit;
 }

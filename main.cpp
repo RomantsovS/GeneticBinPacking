@@ -8,7 +8,7 @@
 #include "Schedule.h"
 
 int main(int argc, char* argv[]) {
-    const size_t num_parameters = 8;
+    const size_t num_parameters = 10;
     if (argc != num_parameters) {
         std::cerr << "incorrect parameters\n";
         return 1;
@@ -17,16 +17,19 @@ int main(int argc, char* argv[]) {
     unsigned rand_seed = std::stoi(argv[1]) ? time(nullptr) : 0;
     srand(rand_seed);
 
-    const size_t total_width = 60;
+    const size_t total_width = std::stoi(argv[2]);
     const double scale = 1.5;
-    const size_t num_packets = std::stoi(argv[2]);
-    const size_t max_rectangles = std::stoi(argv[3]);
-    const size_t max_rectalgle_height = std::stoi(argv[4]);
+    const size_t num_packets = std::stoi(argv[3]);
+    const size_t max_rectangles = std::stoi(argv[4]);
+    const size_t max_rectalgle_height = std::stoi(argv[5]);
+    const size_t max_rectalgle_width = std::stoi(argv[6]);
     const size_t max_attemptions = 10000;
-    const size_t max_packet_rectangles = std::stoi(argv[5]);
+    const size_t max_packet_rectangles = std::stoi(argv[7]);
 
     std::vector<Rectangle> rectangles;
     rectangles.reserve(max_rectangles);
+
+    std::cout << "total available area:" << (num_packets * total_width) << '\n';
 
     Schedule schedule(num_packets);
 
@@ -46,10 +49,10 @@ int main(int argc, char* argv[]) {
 
         for (size_t j = 0; j < max_attemptions; ++j) {
             size_t rect_height =
-                std::min(1 + std::min(rand() % (num_packets / 4), num_packets - packet_id - 1),
+                std::min(1 + std::min(rand() % (num_packets / 2), num_packets - packet_id - 1),
                          max_rectalgle_height);
             size_t rect_width =
-                1 + rand() % (std::min(total_width / 3, total_width - packet_width));
+                1 + rand() % (std::min(max_rectalgle_width, total_width - packet_width));
             Rectangle rect(rectangles.size(), rect_height, rect_width);
             RectWithPos rect_with_pos{
                 &rect, Pos{packet_id,
@@ -81,11 +84,13 @@ int main(int argc, char* argv[]) {
 
     std::flush(std::cout);
 
-    const size_t max_iterations = std::stoi(argv[6]);
+    const size_t max_iterations = std::stoi(argv[8]);
     const size_t max_population = 25;
     GA genetic_alg(total_width, max_iterations, max_population);
 
-    auto new_schedules = genetic_alg.Solve(schedule, std::stoi(argv[7]), rand_seed);
+    auto new_schedules = genetic_alg.Solve(schedule, std::stoi(argv[9]), rand_seed);
+
+    genetic_alg.PrintStatistic();
 
     for (size_t i = 0; i < new_schedules.size(); ++i) {
         std::cout << "schedule: " << i << '\n';

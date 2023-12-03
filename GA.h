@@ -32,6 +32,8 @@ class GA {
     std::vector<Schedule> Solve(const Schedule& schedule, size_t expected_fit,
                                 unsigned random_seed);
 
+    void PrintStatistic();
+
    private:
     Schedule makeSchedule(const std::vector<RectWithPacket>& rectangles_order) const;
     std::vector<RectWithPacket> getRectanglesOrder(const Schedule& schedule) const;
@@ -56,6 +58,12 @@ class GA {
     size_t max_population_;
     std::vector<Gene> populations_;
     std::vector<Gene> childs_;
+
+    struct iteration_statistic {
+        double min;
+        double avg;
+    };
+    std::vector<iteration_statistic> iterations_statistic;
 };
 
 #endif
