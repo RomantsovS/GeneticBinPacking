@@ -19,12 +19,13 @@ class Gene {
    public:
     Gene() = default;
 
-    bool operator==(const Gene& other) { return rectangles_order == other.rectangles_order; }
-
     std::vector<RectWithPacket> rectangles_order;
     double fitness{-1};
     double likelihood{-1};
 };
+
+bool operator==(const Gene& lhs, const Gene& rhs);
+bool operator<(const Gene& lhs, const Gene& rhs);
 
 class GA {
    public:

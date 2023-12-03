@@ -7,6 +7,11 @@
 #include <iostream>
 #include <limits>
 
+bool operator==(const Gene& lhs, const Gene& rhs) {
+    return lhs.rectangles_order == rhs.rectangles_order;
+}
+bool operator<(const Gene& lhs, const Gene& rhs) { return lhs.fitness < rhs.fitness; }
+
 GA::GA(size_t width, size_t max_iterations, size_t max_population)
     : width_(width), max_iterations_(max_iterations), max_population_(max_population) {
     populations_.reserve(max_population_);
@@ -62,8 +67,7 @@ std::vector<Schedule> GA::Solve(const Schedule& schedule, size_t expected_fit,
         ++iterations;
     }
 
-    std::sort(populations_.begin(), populations_.end(),
-              [](const Gene& lhs, const Gene& rhs) { return lhs.fitness < rhs.fitness; });
+    std::sort(populations_.begin(), populations_.end());
 
     if (iterations == max_iterations_) {
         std::cout << "interrupted after " << iterations << " iterations\n";
@@ -271,6 +275,7 @@ Gene GA::Crossover(size_t parent_id_1, size_t parent_id_2) const {
     }
 
     auto child = populations_[parent_id_1];  // Child is all first parent initially.
+    child.likelihood = -1;
 
     size_t crossover =
         rand() % child.rectangles_order.size() + 1;  // Create the crossover point (not first).
@@ -305,4 +310,9 @@ void GA::Mutation() {
     }
 }
 
-void GA::CreateNewPopulation() { populations_ = childs_; }
+void GA::CreateNewPopulation() {
+    populations_.insert(populations_.end(), childs_.begin(), childs_.end());
+    std::nth_element(populations_.begin(), populations_.begin() + max_population_,
+                     populations_.end());
+    populations_.erase(populations_.begin() + max_population_, populations_.end());
+}
