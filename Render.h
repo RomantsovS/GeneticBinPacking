@@ -15,7 +15,7 @@ class Renderer {
             b.resize(static_cast<size_t>(static_cast<double>(width_)));
         }
     }
-    void AddRectangle(const RectWithPos& rect_with_pos) {
+    void AddRectangle(const RectWithPos& rect_with_pos) const {
         size_t down_row = rect_with_pos.pos.x + rect_with_pos.rect->height - 1;
         size_t right_col = rect_with_pos.pos.y + rect_with_pos.rect->width - 1;
         if (buf[0].size() <= right_col) {
@@ -37,7 +37,7 @@ class Renderer {
             buf[rect_with_pos.pos.x + i][right_col] = '|';
         }
     }
-    void Draw(const Schedule& schedule) {
+    void Draw(const Schedule& schedule) const {
         Clear();
         for (const auto& packet : schedule.getPackets()) {
             for (const auto rect_with_pos : packet.rectangles) {
@@ -55,14 +55,14 @@ class Renderer {
     }
 
    private:
-    void Clear() {
+    void Clear() const {
         for (auto& b : buf) {
             std::fill(b.begin(), b.end(), ' ');
         }
     }
     size_t height_;
     size_t width_;
-    std::vector<std::vector<char>> buf;
+    mutable std::vector<std::vector<char>> buf;
 };
 
 #endif

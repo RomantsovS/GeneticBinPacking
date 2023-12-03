@@ -48,7 +48,8 @@ std::vector<Schedule> GA::Solve(const Schedule& schedule, size_t expected_fit,
     size_t iterations = 0;
     while (iterations < max_iterations_) {
         GenerateLikelihoods();
-        CreateChilds();
+        auto childs = CreateChilds();
+        Mutation(childs);
         auto min_fit = CalculateFitnesses();
         if (min_fit < static_cast<double>(expected_fit)) {
             std::cout << "iter: " << iterations << " found with " << min_fit << '\n';
@@ -197,8 +198,8 @@ double GA::MultInv() const {
     return sum;
 }
 
-void GA::CreateChilds() {
-    std::vector<Gene> temppop(max_population_);
+std::vector<Gene> GA::CreateChilds() {
+    std::vector<Gene> childs(max_population_);
 
     for (size_t i = 0; i < max_population_; i++) {
         size_t parent1 = 0;
@@ -219,10 +220,10 @@ void GA::CreateChilds() {
             }
         }
 
-        temppop[i] = Crossover(parent1, parent2);  // Create a child.
+        childs[i] = Crossover(parent1, parent2);  // Create a child.
     }
 
-    populations_ = std::move(temppop);
+    return childs;
 }
 
 size_t GA::GetIndex(double val) const {
@@ -268,9 +269,13 @@ Gene GA::Crossover(size_t parent_id_1, size_t parent_id_2) const {
 
     std::copy(rectangles_order.begin(), end_iter, child.rectangles_order.begin() + crossover);
 
-    if (rand() % 10 == 0) {
-        child.rectangles_order = SwapRectanglesOrder(child.rectangles_order);
-    }
-
     return child;
+}
+
+void GA::Mutation(std::vector<Gene>& genes) {
+    for (auto& gene : genes) {
+        if (rand() % 10 == 0) {
+            gene.rectangles_order = SwapRectanglesOrder(gene.rectangles_order);
+        }
+    }
 }

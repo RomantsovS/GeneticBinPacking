@@ -43,9 +43,10 @@ class GA {
     double Fitness(const Schedule& schedule) const;  // Fitness function.
     void GenerateLikelihoods();                      // Generate likelihoods.
     double MultInv() const;                          // Creates the multiplicative inverse.
-    void CreateChilds();
+    std::vector<Gene> CreateChilds();
     size_t GetIndex(double val) const;
     Gene Crossover(size_t parent_id_1, size_t parent_id_2) const;
+    void Mutation(std::vector<Gene>& genes);
 
     size_t width_;
     size_t num_packets_;
