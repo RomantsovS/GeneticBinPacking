@@ -8,7 +8,7 @@
 #include "Schedule.h"
 
 int main(int argc, char* argv[]) {
-    const size_t num_parameters = 10;
+    const size_t num_parameters = 11;
     if (argc != num_parameters) {
         std::cerr << "incorrect parameters\n";
         return 1;
@@ -85,17 +85,17 @@ int main(int argc, char* argv[]) {
     std::flush(std::cout);
 
     const size_t max_iterations = std::stoi(argv[8]);
-    const size_t max_population = 25;
+    const size_t max_population = std::stoi(argv[9]);
     GA genetic_alg(total_width, max_iterations, max_population);
 
-    auto new_schedules = genetic_alg.Solve(schedule, std::stoi(argv[9]), rand_seed);
-
-    genetic_alg.PrintStatistic();
+    auto new_schedules = genetic_alg.Solve(schedule, std::stoi(argv[10]), rand_seed);
 
     for (size_t i = 0; i < new_schedules.size(); ++i) {
         std::cout << "schedule: " << i << '\n';
         renderer.Draw(new_schedules[i]);
     }
+
+    genetic_alg.PrintStatistic();
 
     return 0;
 }
