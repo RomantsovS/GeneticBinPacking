@@ -9,6 +9,7 @@
 GA::GA(size_t width, size_t max_iterations, size_t max_population)
     : width_(width), max_iterations_(max_iterations), max_population_(max_population) {
     populations_.reserve(max_population_);
+    childs_.reserve(max_population_);
 }
 
 std::vector<Schedule> GA::Solve(const Schedule& schedule, size_t expected_fit,
@@ -48,8 +49,9 @@ std::vector<Schedule> GA::Solve(const Schedule& schedule, size_t expected_fit,
     size_t iterations = 0;
     while (iterations < max_iterations_) {
         GenerateLikelihoods();
-        auto childs = CreateChilds();
-        Mutation(childs);
+        CreateChilds();
+        Mutation();
+        CreateNewPopulation();
         auto min_fit = CalculateFitnesses();
         if (min_fit < static_cast<double>(expected_fit)) {
             std::cout << "iter: " << iterations << " found with " << min_fit << '\n';
@@ -167,6 +169,7 @@ double GA::CalculateFitnesses() {
         min_fit = std::min(min_fit, gene.fitness);
     }
 
+    assert(!populations_.empty());
     avg_fit /= static_cast<double>(populations_.size());
 
     return min_fit;
@@ -181,9 +184,8 @@ void GA::GenerateLikelihoods() {
 
     double last = 0;
     const double one_hundred_percent = 100;
-    for (size_t i = 0; i < max_population_; i++) {
-        populations_[i].likelihood = last =
-            last + ((1 / (populations_[i].fitness) / multinv) * one_hundred_percent);
+    for (auto& gene : populations_) {
+        gene.likelihood = last = last + ((1 / (gene.fitness) / multinv) * one_hundred_percent);
         // std::cout << "% for " << i << " : " << last << '\n';
     }
 }
@@ -191,15 +193,15 @@ void GA::GenerateLikelihoods() {
 double GA::MultInv() const {
     double sum = 0;
 
-    for (size_t i = 0; i < max_population_; i++) {
-        sum += 1 / (populations_[i].fitness);
+    for (const auto& gene : populations_) {
+        sum += 1 / gene.fitness;
     }
 
     return sum;
 }
 
-std::vector<Gene> GA::CreateChilds() {
-    std::vector<Gene> childs(max_population_);
+void GA::CreateChilds() {
+    childs_.clear();
 
     for (size_t i = 0; i < max_population_; i++) {
         size_t parent1 = 0;
@@ -220,10 +222,8 @@ std::vector<Gene> GA::CreateChilds() {
             }
         }
 
-        childs[i] = Crossover(parent1, parent2);  // Create a child.
+        childs_.push_back(Crossover(parent1, parent2));
     }
-
-    return childs;
 }
 
 size_t GA::GetIndex(double val) const {
@@ -272,10 +272,12 @@ Gene GA::Crossover(size_t parent_id_1, size_t parent_id_2) const {
     return child;
 }
 
-void GA::Mutation(std::vector<Gene>& genes) {
-    for (auto& gene : genes) {
+void GA::Mutation() {
+    for (auto& gene : childs_) {
         if (rand() % 10 == 0) {
             gene.rectangles_order = SwapRectanglesOrder(gene.rectangles_order);
         }
     }
 }
+
+void GA::CreateNewPopulation() { populations_ = childs_; }
