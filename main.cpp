@@ -35,9 +35,11 @@ int main(int argc, char* argv[]) {
 
     for (size_t i = 0; i < max_rectangles; ++i) {
         size_t packet_id = std::numeric_limits<size_t>::max();
+        size_t packet_width;
         int iteration = 0;
         while (packet_id == std::numeric_limits<size_t>::max() ||
-               schedule.getPackets()[packet_id].rectangles.size() == max_packet_rectangles) {
+               schedule.getPackets()[packet_id].rectangles.size() == max_packet_rectangles ||
+               (packet_width = schedule.getPackets()[packet_id].width()) + 1 >= total_width) {
             packet_id = rand() % num_packets;
             if (++iteration == max_attemptions) {
                 std::cerr << "can't find packet for allocation\n";
@@ -45,14 +47,13 @@ int main(int argc, char* argv[]) {
             }
         }
 
-        size_t packet_width = schedule.getPackets()[packet_id].width();
-
         for (size_t j = 0; j < max_attemptions; ++j) {
             size_t rect_height =
-                std::min(1 + std::min(rand() % (num_packets / 2), num_packets - packet_id - 1),
+                std::min(1 + std::min(rand() % max_rectalgle_height, num_packets - packet_id - 1),
                          max_rectalgle_height);
             size_t rect_width =
-                1 + rand() % (std::min(max_rectalgle_width, total_width - packet_width));
+                std::min(1 + std::min(rand() % max_rectalgle_width, total_width - packet_width),
+                         max_rectalgle_width);
             Rectangle rect(rectangles.size(), rect_height, rect_width);
             RectWithPos rect_with_pos{
                 &rect, Pos{packet_id,
@@ -72,7 +73,7 @@ int main(int argc, char* argv[]) {
         }
     }
 
-    schedule.print();
+    // schedule.print();
 
     if (rectangles.size() != max_rectangles) {
         std::cerr << "allocated only " << rectangles.size() << "/" << max_rectangles << '\n';
