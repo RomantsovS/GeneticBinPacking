@@ -20,7 +20,7 @@ class Gene {
     Gene() = default;
 
     std::vector<RectWithPacket> rectangles_order;
-    double fitness{-1};
+    size_t fitness{};
     double likelihood{-1};
 };
 
@@ -42,9 +42,9 @@ class GA {
     std::vector<RectWithPacket> SwapRectanglesOrder(
         const std::vector<RectWithPacket>& rectangles_order) const;
 
-    double CalculateFitnesses();
-    double Fitness(const Schedule& schedule) const;  // Fitness function.
-    void CalculateLikelihoods();                      // Generate likelihoods.
+    size_t CalculateFitnesses();
+    size_t Fitness(const Schedule& schedule) const;  // Fitness function.
+    void CalculateLikelihoods();                     // Generate likelihoods.
     double MultInv() const;                          // Creates the multiplicative inverse.
     void CreateChilds();
     size_t GetIndex(double val) const;
@@ -57,12 +57,13 @@ class GA {
 
     size_t max_iterations_;
     size_t max_population_;
-    std::vector<Gene> populations_;
+    std::vector<Gene> population_;
     std::vector<Gene> childs_;
 
     struct iteration_statistic {
-        double min;
-        double avg;
+        size_t min;
+        size_t avg;
+        size_t size;
     };
     std::vector<iteration_statistic> iterations_statistic;
 };
