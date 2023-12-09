@@ -31,11 +31,11 @@ inline std::ostream& operator<<(std::ostream& os, const RectWithPos& rect_with_p
     return os << '[' << *rect_with_pos.rect << ", " << rect_with_pos.pos << ']';
 }
 
-struct Packet {
-    Packet() = default;
-    Packet(size_t i) : id(i) {}
+struct Step {
+    Step() = default;
+    Step(size_t i) : id(i) {}
 
-    bool operator==(const Packet& other) const {
+    bool operator==(const Step& other) const {
         return id == other.id && rectangles == other.rectangles;
     }
 
@@ -53,24 +53,24 @@ struct Packet {
 
 class Schedule {
    public:
-    Schedule(size_t num_packets) {
-        packets.reserve(num_packets);
-        for (size_t i = 0; i < num_packets; ++i) {
-            packets.emplace_back(i);
+    Schedule(size_t num_steps) {
+        steps.reserve(num_steps);
+        for (size_t i = 0; i < num_steps; ++i) {
+            steps.emplace_back(i);
         }
     }
-    bool operator==(const Schedule& other) const { return packets == other.packets; }
+    bool operator==(const Schedule& other) const { return steps == other.steps; }
 
-    void addPacket(const Packet& packet) { packets.push_back(packet); }
-    void addRectangle(size_t packet_id, const RectWithPos& rect_with_pos) {
-        auto& packet = packets.at(packet_id);
-        packet.rectangles.push_back(rect_with_pos);
+    void addStep(const Step& step) { steps.push_back(step); }
+    void addRectangle(size_t step_id, const RectWithPos& rect_with_pos) {
+        auto& step = steps.at(step_id);
+        step.rectangles.push_back(rect_with_pos);
         for (size_t i = 0; i < rect_with_pos.rect->height; ++i) {
-            packets.at(packet_id + i).max_width = rect_with_pos.pos.y + rect_with_pos.rect->width;
+            steps.at(step_id + i).max_width = rect_with_pos.pos.y + rect_with_pos.rect->width;
         }
     }
 
-    const std::vector<Packet>& getPackets() const { return packets; }
+    const std::vector<Step>& getSteps() const { return steps; }
 
     bool static intersect(RectWithPos lhs, RectWithPos rhs) {
         return !(lhs.pos.y > rhs.pos.y + rhs.rect->width - 1 ||
@@ -80,8 +80,8 @@ class Schedule {
     }
 
     bool hasIntersection(const RectWithPos& rect_with_pos) const {
-        return std::any_of(packets.begin(), packets.end(), [&rect_with_pos](const Packet& packet) {
-            return std::any_of(packet.rectangles.begin(), packet.rectangles.end(),
+        return std::any_of(steps.begin(), steps.end(), [&rect_with_pos](const Step& step) {
+            return std::any_of(step.rectangles.begin(), step.rectangles.end(),
                                [&rect_with_pos](const RectWithPos& other) {
                                    bool i = intersect(rect_with_pos, other);
                                    return i;
@@ -89,12 +89,12 @@ class Schedule {
         });
     }
 
-    size_t OutOfRangeSize(size_t width) const {
+    size_t outOfRangeSize(size_t width) const {
         return std::accumulate(
-            packets.begin(), packets.end(), 0u, [width](size_t sum, const Packet& packet) {
+            steps.begin(), steps.end(), 0u, [width](size_t sum, const Step& step) {
                 return sum +
                        std::accumulate(
-                           packet.rectangles.begin(), packet.rectangles.end(), 0u,
+                           step.rectangles.begin(), step.rectangles.end(), 0u,
                            [width](size_t sum2, const RectWithPos& rect_with_pos) {
                                size_t rect_end = rect_with_pos.pos.y + rect_with_pos.rect->width;
                                return sum2 + (rect_end > width
@@ -107,9 +107,9 @@ class Schedule {
     void print() {
         size_t total_area = 0;
 
-        for (const auto& packet : packets) {
-            std::cout << "Packet #" << packet.id << " width: " << packet.width() << '\n';
-            for (const auto& rect_with_pos : packet.rectangles) {
+        for (const auto& step : steps) {
+            std::cout << "step #" << step.id << " width: " << step.width() << '\n';
+            for (const auto& rect_with_pos : step.rectangles) {
                 total_area += rect_with_pos.rect->height * rect_with_pos.rect->width;
                 std::cout << "\t" << rect_with_pos << '\n';
             }
@@ -119,13 +119,7 @@ class Schedule {
     }
 
    private:
-    std::vector<Packet> packets;
-
-    struct PairHash {
-        size_t operator()(const std::pair<size_t, size_t>& pair) const {
-            return pair.first * 32 + pair.second;
-        }
-    };
+    std::vector<Step> steps;
 };
 
 #endif

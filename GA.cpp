@@ -21,7 +21,7 @@ GA::GA(size_t width, size_t max_iterations, size_t max_population)
 
 std::vector<Schedule> GA::Solve(const Schedule& schedule, size_t expected_fit,
                                 unsigned random_seed) {
-    num_packets_ = schedule.getPackets().size();
+    num_steps_ = schedule.getSteps().size();
     auto fit = Fitness(schedule);
     std::cout << "original schedule fit: " << fit << '\n';
     if (fit <= expected_fit) {
@@ -29,7 +29,7 @@ std::vector<Schedule> GA::Solve(const Schedule& schedule, size_t expected_fit,
         return {schedule};
     }
 
-    std::vector<RectWithPacket> rectangles_order = getRectanglesOrder(schedule);
+    std::vector<RectWithStep> rectangles_order = getRectanglesOrder(schedule);
 
     auto ordered_schedule = makeSchedule(rectangles_order);
 
@@ -60,7 +60,7 @@ std::vector<Schedule> GA::Solve(const Schedule& schedule, size_t expected_fit,
         Mutation();
         CreateNewPopulation();
         auto min_fit = CalculateFitnesses();
-        if (min_fit < expected_fit) {
+        if (min_fit <= expected_fit) {
             std::cout << "iter: " << iterations << " found with fit: " << min_fit << '\n';
             break;
         }
@@ -107,47 +107,46 @@ void GA::PrintStatistic() {
     }
 }
 
-Schedule GA::makeSchedule(const std::vector<RectWithPacket>& rectangles_order) const {
-    Schedule result_schedule(num_packets_);
+Schedule GA::makeSchedule(const std::vector<RectWithStep>& rectangles_order) const {
+    Schedule result_schedule(num_steps_);
 
     for (const auto rect_order : rectangles_order) {
         auto rect_with_pos = rect_order.rect_with_pos;
 
         rect_with_pos.pos.y = 0;
         for (size_t i = 0; i < rect_with_pos.rect->height; ++i) {
-            rect_with_pos.pos.y =
-                std::max(rect_with_pos.pos.y,
-                         result_schedule.getPackets()[rect_with_pos.pos.x + i].max_width);
+            rect_with_pos.pos.y = std::max(
+                rect_with_pos.pos.y, result_schedule.getSteps()[rect_with_pos.pos.x + i].max_width);
         }
 
-        result_schedule.addRectangle(rect_order.packet->id, rect_with_pos);
+        result_schedule.addRectangle(rect_order.step->id, rect_with_pos);
     }
 
     return result_schedule;
 }
 
-std::vector<RectWithPacket> GA::getRectanglesOrder(const Schedule& schedule) const {
-    std::vector<RectWithPacket> rectangles_order;
+std::vector<RectWithStep> GA::getRectanglesOrder(const Schedule& schedule) const {
+    std::vector<RectWithStep> rectangles_order;
 
-    for (const auto& packet : schedule.getPackets()) {
-        for (const auto rect_with_pos : packet.rectangles) {
-            rectangles_order.push_back(RectWithPacket{rect_with_pos, &packet});
+    for (const auto& Step : schedule.getSteps()) {
+        for (const auto rect_with_pos : Step.rectangles) {
+            rectangles_order.push_back(RectWithStep{rect_with_pos, &Step});
         }
     }
 
     std::sort(rectangles_order.begin(), rectangles_order.end(),
-              [](const RectWithPacket lhs, const RectWithPacket rhs) {
+              [](const RectWithStep lhs, const RectWithStep rhs) {
                   return lhs.rect_with_pos.pos.y == rhs.rect_with_pos.pos.y
-                             ? lhs.packet->id < rhs.packet->id
+                             ? lhs.step->id < rhs.step->id
                              : lhs.rect_with_pos.pos.y < rhs.rect_with_pos.pos.y;
               });
 
     return rectangles_order;
 }
 
-std::vector<RectWithPacket> GA::SwapRectanglesOrder(
-    const std::vector<RectWithPacket>& rectangles_order) const {
-    std::vector<RectWithPacket> result = rectangles_order;
+std::vector<RectWithStep> GA::SwapRectanglesOrder(
+    const std::vector<RectWithStep>& rectangles_order) const {
+    std::vector<RectWithStep> result = rectangles_order;
 
     size_t first_rect_id = rand() % result.size();
     size_t second_rect_id = rand() % result.size();
@@ -180,7 +179,7 @@ size_t GA::CalculateFitnesses() {
     return min_fit;
 }
 
-size_t GA::Fitness(const Schedule& schedule) const { return schedule.OutOfRangeSize(width_); }
+size_t GA::Fitness(const Schedule& schedule) const { return schedule.outOfRangeSize(width_); }
 
 void GA::CalculateLikelihoods() {
     double multinv = MultInv();
@@ -251,16 +250,16 @@ Gene GA::Crossover(size_t parent_id_1, size_t parent_id_2) const {
     size_t crossover = rand() % child.rectangles_order.size() + 1;
 
     auto rectangles_order = population_[parent_id_2].rectangles_order;
-    auto end_iter = std::remove_if(
-        rectangles_order.begin(), rectangles_order.end(),
-        [&child, crossover](RectWithPacket rect_with_packet) {
-            return std::find_if(child.rectangles_order.begin(),
-                                child.rectangles_order.begin() + crossover,
-                                [rect_with_packet](RectWithPacket rect_with_packet_child) {
-                                    return rect_with_packet.rect_with_pos.rect ==
-                                           rect_with_packet_child.rect_with_pos.rect;
-                                }) != child.rectangles_order.begin() + crossover;
-        });
+    auto end_iter =
+        std::remove_if(rectangles_order.begin(), rectangles_order.end(),
+                       [&child, crossover](RectWithStep rect_with_Step) {
+                           return std::find_if(child.rectangles_order.begin(),
+                                               child.rectangles_order.begin() + crossover,
+                                               [rect_with_Step](RectWithStep rect_with_Step_child) {
+                                                   return rect_with_Step.rect_with_pos.rect ==
+                                                          rect_with_Step_child.rect_with_pos.rect;
+                                               }) != child.rectangles_order.begin() + crossover;
+                       });
 
     assert(end_iter - rectangles_order.begin() ==
            static_cast<int>(rectangles_order.size() - crossover));

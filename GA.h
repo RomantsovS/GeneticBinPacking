@@ -6,20 +6,20 @@
 
 #include "Schedule.h"
 
-struct RectWithPacket {
-    bool operator==(const RectWithPacket& other) const {
-        return rect_with_pos == other.rect_with_pos && packet == other.packet;
+struct RectWithStep {
+    bool operator==(const RectWithStep& other) const {
+        return rect_with_pos == other.rect_with_pos && step == other.step;
     }
 
     RectWithPos rect_with_pos;
-    const Packet* packet = nullptr;
+    const Step* step = nullptr;
 };
 
 class Gene {
    public:
     Gene() = default;
 
-    std::vector<RectWithPacket> rectangles_order;
+    std::vector<RectWithStep> rectangles_order;
     size_t fitness{};
     double likelihood{-1};
 };
@@ -36,16 +36,16 @@ class GA {
     void PrintStatistic();
 
    private:
-    Schedule makeSchedule(const std::vector<RectWithPacket>& rectangles_order) const;
-    std::vector<RectWithPacket> getRectanglesOrder(const Schedule& schedule) const;
+    Schedule makeSchedule(const std::vector<RectWithStep>& rectangles_order) const;
+    std::vector<RectWithStep> getRectanglesOrder(const Schedule& schedule) const;
 
-    std::vector<RectWithPacket> SwapRectanglesOrder(
-        const std::vector<RectWithPacket>& rectangles_order) const;
+    std::vector<RectWithStep> SwapRectanglesOrder(
+        const std::vector<RectWithStep>& rectangles_order) const;
 
     size_t CalculateFitnesses();
-    size_t Fitness(const Schedule& schedule) const;  // Fitness function.
-    void CalculateLikelihoods();                     // Generate likelihoods.
-    double MultInv() const;                          // Creates the multiplicative inverse.
+    size_t Fitness(const Schedule& schedule) const;
+    void CalculateLikelihoods();
+    double MultInv() const;
     void CreateChilds();
     size_t GetIndex(double val) const;
     Gene Crossover(size_t parent_id_1, size_t parent_id_2) const;
@@ -53,7 +53,7 @@ class GA {
     void CreateNewPopulation();
 
     size_t width_;
-    size_t num_packets_;
+    size_t num_steps_;
 
     size_t max_iterations_;
     size_t max_population_;

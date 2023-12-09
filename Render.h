@@ -39,8 +39,8 @@ class Renderer {
     }
     void Draw(const Schedule& schedule) const {
         Clear();
-        for (const auto& packet : schedule.getPackets()) {
-            for (const auto rect_with_pos : packet.rectangles) {
+        for (const auto& step : schedule.getSteps()) {
+            for (const auto rect_with_pos : step.rectangles) {
                 AddRectangle(rect_with_pos);
             }
         }
