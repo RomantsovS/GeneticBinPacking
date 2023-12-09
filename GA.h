@@ -44,7 +44,7 @@ class GA {
 
     double CalculateFitnesses();
     double Fitness(const Schedule& schedule) const;  // Fitness function.
-    void GenerateLikelihoods();                      // Generate likelihoods.
+    void CalculateLikelihoods();                      // Generate likelihoods.
     double MultInv() const;                          // Creates the multiplicative inverse.
     void CreateChilds();
     size_t GetIndex(double val) const;

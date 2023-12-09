@@ -54,7 +54,7 @@ std::vector<Schedule> GA::Solve(const Schedule& schedule, size_t expected_fit,
 
     size_t iterations = 1;
     while (iterations < max_iterations_) {
-        GenerateLikelihoods();
+        CalculateLikelihoods();
         CreateChilds();
         Mutation();
         CreateNewPopulation();
@@ -73,7 +73,7 @@ std::vector<Schedule> GA::Solve(const Schedule& schedule, size_t expected_fit,
         std::cout << "interrupted after " << iterations << " iterations\n";
     }
 
-    for (size_t i = 0; i < populations_.size(); ++i) {
+    for (size_t i = 0; i < 1; ++i) {
         res.push_back(makeSchedule(populations_[i].rectangles_order));
         std::cout << (i + 1) << " fit: " << populations_[i].fitness << '\n';
     }
@@ -208,7 +208,7 @@ double GA::Fitness(const Schedule& schedule) const {
     return static_cast<double>(schedule.OutOfRangeSize(width_));
 }
 
-void GA::GenerateLikelihoods() {
+void GA::CalculateLikelihoods() {
     double multinv = MultInv();
 
     double last = 0;
