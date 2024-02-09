@@ -90,11 +90,11 @@ void GA::PrintStatistic() {
         return;
     }
 
-    for (size_t i = 0; i < iterations_statistic.size(); ++i) {
-        std::cout << "iter " << std::setw(5) << i << " size:" << iterations_statistic[i].size
-                  << " min:" << iterations_statistic[i].min
-                  << " avg:" << iterations_statistic[i].avg << "\n";
-    }
+    // for (size_t i = 0; i < iterations_statistic.size(); ++i) {
+    //     std::cout << "iter " << std::setw(5) << i << " size:" << iterations_statistic[i].size
+    //               << " min:" << iterations_statistic[i].min
+    //               << " avg:" << iterations_statistic[i].avg << "\n";
+    // }
 
     double scale = iterations_statistic[0].avg > 100.0 ? iterations_statistic[0].avg / 100.0 : 1.0;
 
