@@ -5,3 +5,6 @@ output_directory: docs/diagrams
 diagrams:
   class_diagram:
     type: class
+    exclude:
+      namespaces:
+        - std
