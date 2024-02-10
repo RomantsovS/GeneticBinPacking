@@ -1,0 +1,176 @@
+@startuml
+class "std::vector<RectWithPos>" as C_0001994948285295700493
+class C_0001994948285295700493 {
+__
+}
+class "std::vector<Step>" as C_0001900356068563620574
+class C_0001900356068563620574 {
+__
+}
+class "std::vector<RectWithStep>" as C_0000971972735732324523
+class C_0000971972735732324523 {
+__
+}
+class "std::vector<Schedule>" as C_0002248819356398343339
+class C_0002248819356398343339 {
+__
+}
+class "std::vector<Gene>" as C_0000839953965816516475
+class C_0000839953965816516475 {
+__
+}
+class "std::vector<GA::iteration_statistic>" as C_0000516882980372094814
+class C_0000516882980372094814 {
+__
+}
+class "std::vector<char>" as C_0001555288532849600256
+class C_0001555288532849600256 {
+__
+}
+class "std::vector<std::vector<char>>" as C_0001587101195359149752
+class C_0001587101195359149752 {
+__
+}
+class "Rectangle" as C_0000373589578875245130
+class C_0000373589578875245130 {
++Rectangle(size_t i, size_t h, size_t w) : void
+__
++height : size_t
++id : size_t
++width : size_t
+}
+class "Pos" as C_0001610257482604871553
+class C_0001610257482604871553 {
++operator==(const Pos & other) const : bool
+__
++x : size_t
++y : size_t
+}
+class "RectWithPos" as C_0000236531466166773997
+class C_0000236531466166773997 {
++operator==(const RectWithPos & other) const : bool
+__
++pos : Pos
++rect : Rectangle *
+}
+class "Step" as C_0000098590755926109064
+class C_0000098590755926109064 {
++Step() = default : void
++Step(size_t i) : void
+..
++operator==(const Step & other) const : bool
+..
++width() const : size_t
+__
++id : size_t
++max_width : size_t
++rectangles : std::vector<RectWithPos>
+}
+class "Schedule" as C_0000093946869327873909
+class C_0000093946869327873909 {
++Schedule(size_t num_steps) : void
+..
++operator==(const Schedule & other) const : bool
+..
++addRectangle(size_t step_id, const RectWithPos & rect_with_pos) : void
++addStep(const Step & step) : void
++getSteps() const : const std::vector<Step> &
++hasIntersection(const RectWithPos & rect_with_pos) const : bool
+{static} +intersect(RectWithPos lhs, RectWithPos rhs) : bool
++outOfRangeSize(size_t width) const : size_t
++print() : void
+__
+-steps : std::vector<Step>
+}
+class "RectWithStep" as C_0000084282768001716009
+class C_0000084282768001716009 {
++operator==(const RectWithStep & other) const : bool
+__
++rect_with_pos : RectWithPos
++step : const Step *
+}
+class "Gene" as C_0001366491833892222367
+class C_0001366491833892222367 {
++Gene() = default : void
+__
++fitness : size_t
++likelihood : double
++rectangles_order : std::vector<RectWithStep>
+}
+class "GA" as C_0002071076267832123339
+class C_0002071076267832123339 {
++GA(size_t width, size_t max_iterations, size_t max_pop) : void
+..
+-CalculateFitnesses() : size_t
+-CalculateLikelihoods() : void
+-CreateChilds() : void
+-CreateNewPopulation() : void
+-Crossover(size_t parent_id_1, size_t parent_id_2) const : Gene
+-Fitness(const Schedule & schedule) const : size_t
+-GetIndex(double val) const : size_t
+-MultInv() const : double
+-Mutation() : void
++PrintStatistic() : void
++Solve(const Schedule & schedule, size_t expected_fit, unsigned int random_seed) : std::vector<Schedule>
+-SwapRectanglesOrder(const std::vector<RectWithStep> & rectangles_order) const : std::vector<RectWithStep>
+-getRectanglesOrder(const Schedule & schedule) const : std::vector<RectWithStep>
+-makeSchedule(const std::vector<RectWithStep> & rectangles_order) const : Schedule
+__
+-childs_ : std::vector<Gene>
+-iterations_statistic : std::vector<iteration_statistic>
+-max_iterations_ : size_t
+-max_population_ : size_t
+-num_steps_ : size_t
+-population_ : std::vector<Gene>
+-width_ : size_t
+}
+class "GA::iteration_statistic" as C_0000207584391244251542
+class C_0000207584391244251542 {
+__
++avg : size_t
++min : size_t
++size : size_t
+}
+class "Renderer" as C_0002250562613440808018
+class C_0002250562613440808018 {
++Renderer(size_t height, size_t width) : void
+..
++AddRectangle(const RectWithPos & rect_with_pos) const : void
+-Clear() const : void
++Draw(const Schedule & schedule) const : void
+__
+-buf : std::vector<std::vector<char>>
+-height_ : size_t
+-width_ : size_t
+}
+C_0001994948285295700493 ..> C_0000236531466166773997
+C_0001900356068563620574 ..> C_0000098590755926109064
+C_0000971972735732324523 ..> C_0000084282768001716009
+C_0002248819356398343339 ..> C_0000093946869327873909
+C_0000839953965816516475 ..> C_0001366491833892222367
+C_0001587101195359149752 ..> C_0001555288532849600256
+C_0000236531466166773997 --> C_0000373589578875245130 : +rect
+C_0000236531466166773997 o-- C_0001610257482604871553 : +pos
+C_0000098590755926109064 o-- C_0001994948285295700493 : +rectangles
+C_0000093946869327873909 ..> C_0000098590755926109064
+C_0000093946869327873909 ..> C_0000236531466166773997
+C_0000093946869327873909 o-- C_0001900356068563620574 : -steps
+C_0000084282768001716009 o-- C_0000236531466166773997 : +rect_with_pos
+C_0000084282768001716009 --> C_0000098590755926109064 : +step
+C_0001366491833892222367 o-- C_0000971972735732324523 : +rectangles_order
+C_0002071076267832123339 ..> C_0000093946869327873909
+C_0002071076267832123339 ..> C_0002248819356398343339
+C_0002071076267832123339 ..> C_0000971972735732324523
+C_0002071076267832123339 ..> C_0000084282768001716009
+C_0002071076267832123339 ..> C_0001366491833892222367
+C_0002071076267832123339 o-- C_0000839953965816516475 : -population_
+C_0002071076267832123339 o-- C_0000839953965816516475 : -childs_
+C_0002071076267832123339 o-- C_0000516882980372094814 : -iterations_statistic
+C_0000207584391244251542 --+ C_0002071076267832123339
+C_0002250562613440808018 ..> C_0000236531466166773997
+C_0002250562613440808018 ..> C_0000093946869327873909
+C_0002250562613440808018 o-- C_0001587101195359149752 : -buf
+
+'Generated with clang-uml, version 0.5.0
+'LLVM version Ubuntu clang version 15.0.7
+@enduml
